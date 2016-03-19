@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% set page = 'about' %}
+
+{% block content %}
+<div style="align-items: center; text-align: center;">
+<h1 style="font-style: normal; color: #000000"> <b>Login</b></h1>
+<div class="login-form">
+
+    <form action="/login" method="post">
+        <p>
+        User name
+        <br/>
+        <input type="text" name="name" tabindex="1" />
+        </p>
+        <br/>
+        <p>
+        Password
+        <br/>
+        <input type="password" name="passwd" tabindex="2"/>
+        </p>
+        <br/>
+        {{ form.csrf_token }}
+        <input type="submit" value="Sign In" style="font-style: normal;" tabindex="2">
+    </form>
+<!--
+  <form method="post" action="/biblio/search">
+    {{ form.csrf_token }}
+    {{ form.name(size=20) }}
+  </form -->
+
+</div>
+</div>
+{% endblock %}

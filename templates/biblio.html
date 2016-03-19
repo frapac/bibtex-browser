@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+  <div class="row">
+    <div class="three columns"   style="border-right: thick solid #F1F1F1; border-width: 2px;">
+    <!-- Navigation tabs -->
+    <div>
+      <h5> Filters </h5>
+
+        <!-- <hr/ class="ref"> -->
+
+       <a href="/biblio" class="buttonlink" tabindex="3">Clear</a>
+
+        <hr/ class="ref">
+        <ul  class="navlist" style="list-style-type: none;">
+        Years
+          {% for y, refs in references%}
+           <li class="li-filter">
+           <a href="/biblio/year={{y}}">{{y}}</a>
+           </li>
+         {%endfor%}
+       </ul>
+
+        <hr/ class="ref">
+        <ul  class="navlist" style="list-style-type: none;">  Types
+        {% for t in types%}
+          <li class="li-filter">
+          <a href="/biblio/type={{t}}">{{t}}</a>
+          </li>
+        {%endfor%}
+      </ul>
+
+       <hr/ class="ref">
+        <ul class="authorul">  Authors
+        <br/>
+        {% for a in authors%}
+        <a class="author" href="/biblio/author={{a}}"> {{a}} </a>
+        {%endfor%}
+      </ul>
+    </div>
+    </div>
+
+    <!-- Main contents -->
+    <div class="nine columns">
+
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+  </div>
+{% endblock %}

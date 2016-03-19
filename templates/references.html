@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% set page = 'references' %}
+
+{% block content %}
+
+<div class="row">
+  <div class="three columns"   style="border-right: thick solid #F1F1F1; border-width: 2px;">
+  <!-- Navigation tabs -->
+  <div>
+    <h5> Filters </h5>
+
+      <a href="/biblio" class="buttonlink" tabindex="3">Clear</a>
+
+      <hr/ class="ref">
+      <ul  class="navlist" style="list-style-type: none;">
+        Years
+        {% for y, refs in references%}
+         <li class="li-filter">
+         <a href="/biblio/year={{y}}">{{y}}</a>
+         </li>
+       {%endfor%}
+      </ul>
+
+      <hr/ class="ref">
+      <ul  class="navlist" style="list-style-type: none;">  Types
+        {% for t in types%}
+          <li class="li-filter">
+          <a href="/biblio/type={{t}}">{{t}}</a>
+          </li>
+        {%endfor%}
+      </ul>
+
+      <hr/ class="ref">
+      <ul class="authorul">  Authors
+        <br/>
+        {% for a in authors%}
+        <a class="author" href="/biblio/author={{a}}"> {{a}} </a>
+        {%endfor%}
+      </ul>
+    </div>
+  </div>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close"><b>x</b></span>
+    <p>Add entry to bibliography:</p>
+    <form action="/biblio/addentry" method="post" name="login">
+        {{ bibform.hidden_tag() }}
+
+        <div class="row">
+          <div class="one column"><b>Type</b></div>
+          <div class="eleven columns">
+            <select name="typ">
+              <option value="phdthesis">PhD</option>
+              <option value="article">Article</option>
+              <option value="book">Book</option>
+              <option value="inproceedings">In Proceedings</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 5px">
+          <div class="one column"><b>Title</b></div>
+          <div class="eleven columns">{{ bibform.title(size=80) }}</div>
+        </div>
+
+        <div class="row" style="margin-top: 5px">
+          <div class="one column"><b>Author(s)</b></div>
+          <div class="eleven columns">{{ bibform.author(size=50) }}</div>
+          <br/>
+        </div>
+
+        <div class="row" style="margin-top: 5px">
+          <div class="one column"><b>Year</b></div>
+          <div class="eleven columns">{{ bibform.year(size=4) }}</div>
+        </div>
+        <div class="row" style="margin-top: 5px">
+          <div class="one column"><b>Journal</b></div>
+          <div class="eleven columns">{{ bibform.journal(size=20) }}</div>
+        </div>
+
+        <div class="row" style="margin-top: 5px">
+          <div class="one column"><b>ID</b></div>
+          <div class="eleven columns">{{ bibform.ID(size=20) }}</div>
+        </div>
+
+        <div class="row" style="margin-top: 5px">
+          <div class="one column"><b>Keyword</b></div>
+          <div class="eleven columns">{{ bibform.keywords(size=20) }}</div>
+        </div>
+
+        <div class="row" style="margin-top: 5px">
+          <div class="one column"><b>School</b></div>
+          <div class="eleven columns">{{ bibform.school(size=20) }}</div>
+        </div>
+
+        <div class="row" style="margin-top: 5px">
+          <div class="one column"><b>URL</b></div>
+          <div class="eleven columns">{{ bibform.url(size=20) }}</div>
+        </div>
+
+
+
+        <p style="margin-top: 5px; float: right; position:relative;">
+          <input type="submit" class="button-primary" value="Add">
+        </p>
+    </form>
+  </div>
+
+</div>
+
+<div class="nine columns">
+  <div class="container bs-docs-container">
+    <div class="bs-example">
+
+      <div class="search-field">
+        <form method="post" action="/biblio/search">
+          {{ form.csrf_token }}
+          <input type="text" name="name" size="60" tabindex="1">
+          <input type="submit" value="Search" tabindex="2">
+        </form>
+      </div>
+
+      <button id="myBtn">+</button>
+
+  	  <ul class="list-group">
+
+        {% for y, refs in references%}
+          <hr/>
+          <h4> {{y}} </h4>
+          <ul>
+            {% for r in refs%}
+
+            <li class="list-group-item">
+              {{ r.authors }}. <b class="type"> {{r.ENTRYTYPE}} </b>
+              <br/>
+              <em> <a href="/biblio/article:{{r.ID}}" style="color:#696969"> {{r.title}}. </a></em>
+              <br/>
+              {{r.origin}}
+               <a href="/bibtex:{{r.ID}}" class="elink"> <b> [bib] </b> </a>
+              {% if r.link %}
+                <a href="{{r.link}}" class="elink"> <b> [url] </b> </a>
+              {% endif %}
+              {% if r.keyword %}
+              <br/>
+              <b> Keywords </b>:{% for k in r.keyword%} <b class="keyword">{{k}}</b> {%endfor %}
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+</div>
+</div>
+{% endblock %}

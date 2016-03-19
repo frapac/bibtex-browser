@@ -1,0 +1,60 @@
+<!-- <!DOCTYPE html> -->
+<html>
+  <head>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/css/skeleton.css">
+    <link rel="stylesheet" href="/static/css/normalize.css">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/modal.css">
+  </head>
+
+  <body>
+  <div class="header">
+  <b> Bibliography </b>
+  </div>
+
+  <div class="main">
+
+        {% block content %}
+        {% endblock %}
+  </div>
+<!--
+  <footer class="footer">
+  {{ license_info }} {{engine}}. Contact: francois.pacaud@mines-paris.org
+  </footer> -->
+
+<script type="text/javascript">
+  // Get the modal
+  var modal = document.getElementById('myModal');
+  // Get the button that opens the modal
+  var btn = document.getElementById("myBtn");
+  // Get the <span> element that closes the modal
+  var span = document.getElementsByClassName("close")[0];
+  // When the user clicks the button, open the modal
+  btn.onclick = function() {
+      modal.style.display = "block";
+  }
+  // When the user clicks on <span> (x), close the modal
+  span.onclick = function() {
+      modal.style.display = "none";
+  }
+  // When the user clicks anywhere outside of the modal, close it
+  window.onclick = function(event) {
+      if (event.target == modal) {
+          modal.style.display = "none";
+      }
+  }
+
+  document.onkeypress = function(evt) {
+    evt = evt || window.event;
+    var charCode = evt.keyCode || evt.which;
+    if (evt.keyCode == 27) {
+      modal.style.display = "none";
+    }
+  };
+
+</script>
+
+  </body>
+</html>
+
