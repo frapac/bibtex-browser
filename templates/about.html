@@ -11,12 +11,20 @@
         User name
         <br/>
         <input type="text" name="name" tabindex="1" />
+        <br/>
+        {% for error in form.name.errors %}
+            <span class="help-inline">{{ error }}</span><br>
+        {% endfor %}
         </p>
         <br/>
         <p>
         Password
         <br/>
         <input type="password" name="passwd" tabindex="2"/>
+        <br/>
+        {% for error in form.passwd.errors %}
+            <span class="help-inline">{{ error }}</span><br>
+        {% endfor %}
         </p>
         <br/>
         {{ form.csrf_token }}

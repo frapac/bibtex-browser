@@ -6,7 +6,7 @@ from wtforms import StringField, BooleanField, IntegerField
 from wtforms.validators import DataRequired
 
 
-class RequestForm(Form):
+class SearchForm(Form):
     name = StringField('request', validators=[DataRequired()])
 
 
