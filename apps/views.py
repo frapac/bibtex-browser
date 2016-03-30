@@ -12,9 +12,14 @@ from collections import defaultdict
 from apps.models.forms import *
 from apps import app
 
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html', title="Not found"), 404
+
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=["GET", "POST"])
+@app.route('/index', methods=["GET", "POST"])
 def login():
     """Login to application."""
     form = LoginForm()
@@ -32,7 +37,7 @@ def logout():
 
 def requests_db(req):
     """Send a request to the DB and return a list of dict."""
-    con = sqlite3.connect('biblio.db')
+    con = sqlite3.connect('app.db')
     with con:
         con.row_factory = sqlite3.Row
         cur = con.cursor()
@@ -68,7 +73,7 @@ def add_entry():
     """Add a new entry to the bibliography."""
     form = BiblioForm()
     if form.validate_on_submit():
-        con = sqlite3.connect('biblio.db')
+        con = sqlite3.connect('app.db')
         with con:
             cur = con.cursor()
             # TODO: factorize this code
