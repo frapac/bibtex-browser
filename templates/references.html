@@ -13,10 +13,10 @@
 
       <hr/ class="ref">
       <ul  class="navlist" style="list-style-type: none;">
-        Years
+		   Years
         {% for y, refs in references%}
          <li class="li-filter">
-         <a href="/biblio/year={{y}}">{{y}}</a>
+         <input type="checkbox" name="years" value="{{y}}" class="checkyear" {%if y in checked%} checked {% endif %}> <a href="/biblio/year={{y}}">{{y}}</a>
          </li>
        {%endfor%}
       </ul>
@@ -25,7 +25,7 @@
       <ul  class="navlist" style="list-style-type: none;">  Types
         {% for t in types%}
           <li class="li-filter">
-          <a href="/biblio/type={{t}}">{{t}}</a>
+          <input type="checkbox" name="years" value="no" > <a href="/biblio/type={{t}}">{{t}}</a>
           </li>
         {%endfor%}
       </ul>

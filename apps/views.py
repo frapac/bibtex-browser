@@ -1,7 +1,7 @@
 
 import sqlite3
 import requests
-from flask import jsonify, render_template, redirect,flash
+from flask import jsonify, render_template, redirect,flash, request
 from flask.ext.login import login_required, logout_user
 
 import bibtexparser
@@ -131,11 +131,15 @@ def get_all_biblio():
     return render_template("references.html", **templateVars)
 
 
-@app.route('/biblio/year=<string:year>', methods=['GET'])
+@app.route('/biblio/year=<string:year>:', methods=['GET'])
 def get_biblio_year(year):
     """Return bibliography corresponding to given year."""
-    bibdat = requests_db("SELECT * FROM Biblio WHERE year=={}".format(year))
+    subfield = "".join("year=={} OR ".format(yy) for yy in year.split(":"))
+
+    bibdat = requests_db("SELECT * FROM Biblio WHERE {}".format(subfield[:-3]))
     templateVars = format_bibdatabase(bibdat)
+    templateVars["checked"] = [int(y) for y in year.split(":")]
+    print(year.split(":"))
     return render_template("references.html", **templateVars)
 
 
@@ -207,6 +211,7 @@ def format_bibdatabase(bib_database, year_filter=None,
         "engine": "Powered by Flask",
         "references": [],
         "authors": [],
+        "checked": [],
         "types": ["book", "article", "phdthesis", "inproceedings"]
         }
 

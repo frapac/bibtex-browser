@@ -53,6 +53,28 @@
     }
   };
 
+  var checkedyear = document.getElementsByClassName('checkyear');
+
+  function checkClicked(){
+    var ss = "year=";
+    var it;
+    for (it=0; it< checkedyear.length; it++){
+      if (checkedyear[it].checked){
+        ss = ss.concat(checkedyear[it].value, ":")
+      };
+    }
+
+    console.log(ss);
+
+    window.location.href = "/biblio/".concat(ss);
+  }
+
+  var it;
+  for (it=0; it< checkedyear.length; it++){
+    checkedyear[it].onclick = checkClicked;
+  }
+
+
 </script>
 
   </body>
