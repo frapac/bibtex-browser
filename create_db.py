@@ -48,6 +48,10 @@ def load_bibtex():
 
 
 def main():
+    if len(sys.argv) < 2:
+        print("Usage:\n\n$ python3 create_db.py yourbibtex.bib\n")
+        sys.exit(-1)
+
     print("Init database with ", sys.argv[1])
 
     engine = create_engine('sqlite:///app.db', echo=True)

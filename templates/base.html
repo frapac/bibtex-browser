@@ -54,26 +54,71 @@
   };
 
   var checkedyear = document.getElementsByClassName('checkyear');
+  var checkedtype = document.getElementsByClassName('checktype');
 
-  function checkClicked(){
-    var ss = "year=";
-    var it;
-    for (it=0; it< checkedyear.length; it++){
-      if (checkedyear[it].checked){
-        ss = ss.concat(checkedyear[it].value, ":")
+  // Get value of all checkbox checked in a specified array
+  function checkClickedTab(tab, field){
+    var ss = field;
+    var it, count;
+    count = 0;
+    for (it=0; it< tab.length; it++){
+      if (tab[it].checked){
+        ss = ss.concat(tab[it].value, ":");
+        count += 1;
       };
     }
 
     console.log(ss);
+    if(count >= 1){
+      return ss
+    }
+    else{
+      return ""
+    }
+  }
 
-    window.location.href = "/biblio/".concat(ss);
+  // function checkClickedTypes(){
+  //   var ss = "types=";
+  //   var it, count;
+  //   count = 0;
+  //   for (it=0; it< checkedtype.length; it++){
+  //     if (checkedtype[it].checked){
+  //       ss = ss.concat(checkedtype[it].value, ":");
+  //       count += 1;
+  //     };
+  //   }
+
+  // }
+
+
+  function checkClicked(){
+    cy = checkClickedTab(checkedyear, "year=");
+    ct = checkClickedTab(checkedtype, "type=");
+
+    if(cy == "" && ct == ""){
+
+    }
+    else if(cy != "" && ct == ""){
+      window.location.href = "/biblio/".concat(cy);
+    }
+    else if(cy =="" && ct != ""){
+      window.location.href = "/biblio/".concat(ct);
+    }
+    else{
+      ss = cy.concat("&", ct);
+      window.location.href = "/biblio/query?".concat(ss);
+    }
+
+    // ss = checkClickedTab(checkedyear).concat("&", checkClickedTab(checkedtype))
   }
 
   var it;
   for (it=0; it< checkedyear.length; it++){
     checkedyear[it].onclick = checkClicked;
   }
-
+  for (it=0; it< checkedtype.length; it++){
+    checkedtype[it].onclick = checkClicked;
+  }
 
 </script>
 

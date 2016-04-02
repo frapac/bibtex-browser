@@ -12,6 +12,9 @@ from collections import defaultdict
 from apps.models.forms import *
 from apps import app
 
+from config import DB_NAME
+
+
 @app.errorhandler(404)
 def not_found_error(error):
     return render_template('404.html', title="Not found"), 404
@@ -37,7 +40,7 @@ def logout():
 
 def requests_db(req):
     """Send a request to the DB and return a list of dict."""
-    con = sqlite3.connect('app.db')
+    con = sqlite3.connect(DB_NAME)
     with con:
         con.row_factory = sqlite3.Row
         cur = con.cursor()
@@ -73,11 +76,39 @@ def add_entry():
     """Add a new entry to the bibliography."""
     form = BiblioForm()
     if form.validate_on_submit():
-        con = sqlite3.connect('app.db')
+        con = sqlite3.connect(DB_NAME)
         with con:
             cur = con.cursor()
             # TODO: factorize this code
             cur.execute("INSERT INTO Biblio VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                  [form.ID.data,
+                                    form.typ.data,
+                                    form.author.data,
+                                    form.title.data,
+                                    form.year.data,
+                                    "",
+                                    "",
+                                    form.journal.data,
+                                    "",
+                                    "",
+                                    "",
+                                    ""])
+            con.commit()
+
+        return redirect("/biblio")
+    return redirect("/biblio")
+
+
+@app.route('/biblio/updateentry', methods=['GET', 'POST'])
+def update_entry():
+    """Add a new entry to the bibliography."""
+    form = BiblioForm()
+    if form.validate_on_submit():
+        con = sqlite3.connect(DB_NAME)
+        with con:
+            cur = con.cursor()
+            # TODO: factorize this code
+            cur.execute("UPDATE Biblio SET (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) WHERE ID=?",
                                    [form.typ.data,
                                     "temp",
                                     form.author.data,
@@ -96,6 +127,7 @@ def add_entry():
     return redirect("/biblio")
 
 
+
 @app.route('/bibtex:<string:idx>', methods=['GET'])
 def get_bibtex(idx):
     """Return bibtex entry with id *idx*."""
@@ -112,7 +144,7 @@ def display_article(idx):
     keyword = bibdat[0].get("keyword", "").split(",")
 
     templateVars = {
-        "license_info": "Distributed under GNU license.",
+        "license_info": "Distributed under MIT license.",
         "title": "Article",
         "engine": "Powered by Flask",
         "article": bibdat[0],
@@ -127,7 +159,9 @@ def display_article(idx):
 def get_all_biblio():
     """Return all bibliography, without filters."""
     bibdat = requests_db("SELECT * FROM Biblio ORDER BY year DESC")
+    years = requests_db("SELECT DISTINCT year FROM Biblio ORDER BY year DESC")
     templateVars = format_bibdatabase(bibdat)
+    templateVars["years"] = [y["year"] for y in years]
     return render_template("references.html", **templateVars)
 
 
@@ -137,17 +171,45 @@ def get_biblio_year(year):
     subfield = "".join("year=={} OR ".format(yy) for yy in year.split(":"))
 
     bibdat = requests_db("SELECT * FROM Biblio WHERE {}".format(subfield[:-3]))
+    years = requests_db("SELECT DISTINCT year FROM Biblio ORDER BY year DESC")
     templateVars = format_bibdatabase(bibdat)
     templateVars["checked"] = [int(y) for y in year.split(":")]
-    print(year.split(":"))
+    templateVars["years"] = [y["year"] for y in years]
     return render_template("references.html", **templateVars)
 
 
-@app.route('/biblio/type=<string:types>', methods=['GET'])
+@app.route('/biblio/type=<string:types>:', methods=['GET'])
 def get_biblio_types(types):
     """Return bibliography corresponding to given type."""
-    bibdat = requests_db("SELECT * FROM Biblio WHERE ENTRYTYPE=='{}'".format(types))
+    subfield = "".join("ENTRYTYPE=='{}' OR ".format(tt) for tt in types.split(":"))
+
+    bibdat = requests_db("SELECT * FROM Biblio WHERE {}".format(subfield[:-3]))
+    years = requests_db("SELECT DISTINCT year FROM Biblio ORDER BY year DESC")
+
     templateVars = format_bibdatabase(bibdat, type_filter=types)
+    templateVars["years"] = [y["year"] for y in years]
+    templateVars["checked"] = types.split(":")
+    return render_template("references.html", **templateVars)
+
+
+@app.route('/biblio/query', methods=['GET'])
+def request_api():
+    """Request given years and types"""
+    year = request.args.get("year")
+    if len(year) > 0 and year[-1] == ':':
+        year = year[:-1]
+    types = request.args.get("type")
+    field_year = "".join("year=={} OR ".format(yy) for yy in year.split(":"))
+    field_type = "".join("ENTRYTYPE=='{}' OR ".format(tt) for tt in types.split(":"))
+
+    query = "SELECT * FROM Biblio WHERE ({}) AND ({})".format(field_type[:-3], field_year[:-3])
+    bibdat = requests_db(query)
+
+    years = requests_db("SELECT DISTINCT year FROM Biblio ORDER BY year DESC")
+    templateVars = format_bibdatabase(bibdat, type_filter=types)
+    templateVars["checked"] = [int(y) for y in year.split(":")]
+    templateVars["checked"].extend(types.split(":"))
+    templateVars["years"] = [y["year"] for y in years]
     return render_template("references.html", **templateVars)
 
 
@@ -155,7 +217,10 @@ def get_biblio_types(types):
 def get_biblio_author(auth):
     """Return bibliography corresponding to given author."""
     bibdat = requests_db("SELECT * FROM Biblio WHERE authors LIKE '%{}%'".format(auth))
+    years = requests_db("SELECT DISTINCT year FROM Biblio ORDER BY year DESC")
+
     templateVars = format_bibdatabase(bibdat, type_author=auth)
+    templateVars["years"] = [y["year"] for y in years]
     return render_template("references.html", **templateVars)
 
 
@@ -167,10 +232,7 @@ def render_hal_biblio(keywords):
     # https://api.archives-ouvertes.fr/search/?q=auth_t:%22olivier%20bonin%22~3&wt=bibtex
 
     # TODO: move URL in config file
-    if keywords == "test":
-        biblio = requests.get("https://api.archives-ouvertes.fr/search/?q=auth_t:%22olivier%20bonin%22~3&wt=bibtex").text
-    else:
-        biblio = requests.get("https://api.archives-ouvertes.fr/search/?q={0}~3&wt=bibtex".format(keywords)).text
+    biblio = requests.get("https://api.archives-ouvertes.fr/search/?q={0}~3&wt=bibtex".format(keywords)).text
 
     # TODO: dry this code.
     parser = BibTexParser()
@@ -209,6 +271,7 @@ def format_bibdatabase(bib_database, year_filter=None,
         "form": form,
         "bibform": bibform,
         "engine": "Powered by Flask",
+        "years": [],
         "references": [],
         "authors": [],
         "checked": [],

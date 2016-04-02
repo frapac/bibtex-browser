@@ -5,7 +5,6 @@
 
 <div class="row">
   <div class="three columns"   style="border-right: thick solid #F1F1F1; border-width: 2px;">
-  <!-- Navigation tabs -->
   <div>
     <h5> Filters </h5>
 
@@ -14,9 +13,10 @@
       <hr/ class="ref">
       <ul  class="navlist" style="list-style-type: none;">
 		   Years
-        {% for y, refs in references%}
+        {% for y in years%}
          <li class="li-filter">
-         <input type="checkbox" name="years" value="{{y}}" class="checkyear" {%if y in checked%} checked {% endif %}> <a href="/biblio/year={{y}}">{{y}}</a>
+           <input type="checkbox" name="years" value="{{y}}" class="checkyear" {%if y in checked%} checked {% endif %}>
+           <a href="/biblio/year={{y}}:">{{y}}</a>
          </li>
        {%endfor%}
       </ul>
@@ -25,7 +25,8 @@
       <ul  class="navlist" style="list-style-type: none;">  Types
         {% for t in types%}
           <li class="li-filter">
-          <input type="checkbox" name="years" value="no" > <a href="/biblio/type={{t}}">{{t}}</a>
+            <input type="checkbox" name="types" class="checktype" value="{{t}}" {%if t in checked%} checked {% endif %}>
+            <a href="/biblio/type={{t}}">{{t}}</a>
           </li>
         {%endfor%}
       </ul>
