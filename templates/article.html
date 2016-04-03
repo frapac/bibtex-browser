@@ -30,9 +30,16 @@
 
 
     <button id="myBtn">Modify</button>
-  </div>
+</div>
 
-
+<div class="articleComment">
+  <form action="/biblio" id="usrform" method="POST">
+    <!-- Name: <input type="text" name="usrname"> -->
+  <textarea name="comment" form="usrform" rows="4" cols="50" wrap="hard">Add commentary...</textarea>
+    </br>
+    <input type="submit" value="Comment">
+  </form>
+</div>
 
 
 <div id="myModal" class="modal">
@@ -103,6 +110,8 @@
   </div>
 
 </div>
+
+
 
 
 {% endblock %}

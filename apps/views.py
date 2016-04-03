@@ -7,9 +7,10 @@ from flask.ext.login import login_required, logout_user
 import bibtexparser
 from bibtexparser.bparser import BibTexParser
 from bibtexparser.customization import convert_to_unicode
+from bibtexparser.bibdatabase import BibDatabase
 from collections import defaultdict
 
-from apps.models.forms import *
+from apps.models import *
 from apps import app
 
 from config import DB_NAME
@@ -132,7 +133,10 @@ def update_entry():
 def get_bibtex(idx):
     """Return bibtex entry with id *idx*."""
     bibdat = requests_db("SELECT * FROM Biblio WHERE ID=='{}'".format(idx))
-
+    # bibdat[0]["year"] = str(bibdat[0]["year"])
+    # bd = BibDatabase()
+    # bd.entries = bibdat
+    # return bibtexparser.dumps(bd)
     return jsonify(bibdat[0])
 
 

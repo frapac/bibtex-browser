@@ -13,4 +13,4 @@ lm.init_app(app)
 lm.login_view = 'login'
 
 
-from apps import views
+from apps import views, models
