@@ -320,7 +320,7 @@ def format_bibdatabase(bib_database, year_filter=None,
 		"references": [],
 		"authors": [],
 		"checked": [],
-		"types": ["book", "article", "phdthesis", "inproceedings"]
+		"types": ["book", "article", "phdthesis", "inproceedings", "misc", "techreport"]
 		}
 
 	base = defaultdict(list)
