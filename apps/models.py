@@ -49,7 +49,17 @@ class User(db.Model):
 	__tablename__ = "User"
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(64), index=True, unique=True)
-	email = db.Column(db.String(120), index=True, unique=True)
+	passwd = db.Column(db.String(120), index=True, unique=True)
+	authenticated = db.Column(db.Boolean, default=False)
+
+	def get_id(self):
+		return self.id
+	def is_active(self):
+		return True
+	def is_authenticated(self):
+		return self.authenticated
+	def is_anonymous(self):
+		return False
 
 
 class BiblioEntry(db.Model):

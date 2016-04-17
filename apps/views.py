@@ -3,7 +3,7 @@ import sqlite3
 import requests
 import time
 from flask import jsonify, render_template, redirect,flash, request
-from flask.ext.login import login_required, logout_user
+from flask.ext.login import login_required, logout_user, login_user, current_user
 
 import bibtexparser
 from bibtexparser.bparser import BibTexParser
@@ -12,7 +12,7 @@ from bibtexparser.bibdatabase import BibDatabase
 from collections import defaultdict
 
 from apps.models import *
-from apps import app, db
+from apps import app, db, lm
 
 from config import DB_NAME
 
@@ -29,13 +29,25 @@ def login():
 	"""Login to application."""
 	form = LoginForm()
 	if form.validate_on_submit():
-		return redirect('/biblio')
-	return render_template('about.html', form=form)
+		user = User.query.filter_by(name=form.name.data).first()
+		if user:
+			user.authenticated = True
+			db.session.add(user)
+			db.session.commit()
+			login_user(user, remember=True)
+			print(request.args.get("next"))
+			return redirect(request.args.get('next') or "/biblio")
+		return redirect('/login')
+	return render_template('about.html', form=form, title="Log in")
 
 
 @app.route('/logout')
 def logout():
 	"""Log out from application."""
+	user = current_user
+	user.authenticated = False
+	db.session.add(user)
+	db.session.commit()
 	logout_user()
 	return redirect('/')
 
@@ -57,6 +69,7 @@ def requests_db(req):
 
 
 @app.route('/biblio/search', methods=['GET', 'POST'])
+@login_required
 def search_biblio():
 	"""Search entries in biblio."""
 	# Get the form corresponding to the query:
@@ -74,6 +87,7 @@ def search_biblio():
 
 
 @app.route('/biblio/addentry', methods=['GET', 'POST'])
+@login_required
 def add_entry():
 	"""Add a new entry to the bibliography."""
 	form = BiblioForm()
@@ -102,6 +116,7 @@ def add_entry():
 
 
 @app.route('/biblio/updateentry', methods=['GET', 'POST'])
+@login_required
 def update_entry():
 	"""Add a new entry to the bibliography."""
 	form = BiblioForm()
@@ -130,12 +145,13 @@ def update_entry():
 
 
 @app.route('/biblio/postcomment', methods=['GET', 'POST'])
+@login_required
 def post_comment():
 	"""Add post to article."""
 	form = PostForm()
 	article = request.environ["HTTP_REFERER"].split(":")[-1]
 	tim = time.time()
-	user = "Foo"
+	user = current_user.name
 	post = Post(author=user, article=article, message=form.message.data, time=tim)
 	db.session.add(post)
 	db.session.commit()
@@ -143,6 +159,7 @@ def post_comment():
 
 
 @app.route('/bibtex:<string:idx>', methods=['GET'])
+@login_required
 def get_bibtex(idx):
 	"""Return bibtex entry with id *idx*."""
 	bibdat = requests_db("SELECT * FROM Biblio WHERE ID=='{}'".format(idx))
@@ -150,6 +167,7 @@ def get_bibtex(idx):
 
 
 @app.route('/biblio/article:<string:idx>', methods=['GET'])
+@login_required
 def display_article(idx):
 	"""Return bibtex entry with id *idx*."""
 	bibdat = requests_db("SELECT * FROM Biblio WHERE ID=='{}'".format(idx))
@@ -177,6 +195,7 @@ def display_article(idx):
 
 
 @app.route('/biblio', methods=['GET'])
+@login_required
 def get_all_biblio():
 	"""Return all bibliography, without filters."""
 	bibdat = requests_db("SELECT * FROM Biblio ORDER BY year DESC")
@@ -187,6 +206,7 @@ def get_all_biblio():
 
 
 @app.route('/biblio/year=<string:year>:', methods=['GET'])
+@login_required
 def get_biblio_year(year):
 	"""Return bibliography corresponding to given year."""
 	subfield = "".join("year=={} OR ".format(yy) for yy in year.split(":"))
@@ -200,6 +220,7 @@ def get_biblio_year(year):
 
 
 @app.route('/biblio/type=<string:types>:', methods=['GET'])
+@login_required
 def get_biblio_types(types):
 	"""Return bibliography corresponding to given type."""
 	subfield = "".join("ENTRYTYPE=='{}' OR ".format(tt) for tt in types.split(":"))
@@ -214,6 +235,7 @@ def get_biblio_types(types):
 
 
 @app.route('/biblio/query', methods=['GET'])
+@login_required
 def request_api():
 	"""Request given years and types"""
 	year = request.args.get("year")
@@ -235,6 +257,7 @@ def request_api():
 
 
 @app.route('/biblio/author=<string:auth>', methods=['GET'])
+@login_required
 def get_biblio_author(auth):
 	"""Return bibliography corresponding to given author."""
 	bibdat = requests_db("SELECT * FROM Biblio WHERE authors LIKE '%{}%'".format(auth))
@@ -246,6 +269,7 @@ def get_biblio_author(auth):
 
 
 @app.route('/hal/<string:keywords>', methods=['GET'])
+@login_required
 def render_hal_biblio(keywords):
 	"""Send a query to HAL API and display returned bibtex entries."""
 	# http://export.arxiv.org/api/query?search_query=au:%22leclere%22&sortBy=lastUpdatedDate&sortOrder=descending
@@ -344,3 +368,6 @@ def format_bibdatabase(bib_database, year_filter=None,
 
 	return templateVars
 
+@lm.user_loader
+def load_user(id):
+	return User.query.get(int(id))
