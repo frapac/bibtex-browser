@@ -36,7 +36,7 @@
   <ul>
   {% for p in posts%}
   <li class="message">
-  <b> {{ p.author}}</b><br/> {{p.message}}
+  <b> {{ p.author}}</b> {{p.date}} <br/> {{p.message}}
   </li>
   {% endfor %}
   </ul>
