@@ -12,7 +12,7 @@
 
       <hr/ class="ref">
       <ul  class="navlist" style="list-style-type: none;">
-		   Years
+           Years
         {% for y in years%}
          <li class="li-filter">
            <input type="checkbox" name="years" value="{{y}}" class="checkyear" {%if y in checked%} checked {% endif %}>
@@ -127,7 +127,7 @@
 
       <button id="myBtn">+</button>
 
-  	  <ul class="list-group">
+      <ul class="list-group">
 
         {% for y, refs in references%}
           <hr/>
@@ -145,9 +145,9 @@
               {% if r.link %}
                 <a href="{{r.link}}" class="elink"> <b> [url] </b> </a>
               {% endif %}
-              {% if r.keyword %}
+              {% if r.keywords%}
               <br/>
-              <b> Keywords </b>:{% for k in r.keyword%} <b class="keyword">{{k}}</b> {%endfor %}
+              <b> Keywords </b>:{% for k in r.keywords%} <b class="keyword">{{k}}</b> {%endfor %}
               {% endif %}
             </li>
             {% endfor %}

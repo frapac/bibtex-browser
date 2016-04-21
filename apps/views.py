@@ -121,27 +121,23 @@ def add_entry():
 def update_entry():
     """Add a new entry to the bibliography."""
     form = BiblioForm()
+    article_name = request.environ["HTTP_REFERER"].split(":")[-1]
     if form.validate_on_submit():
-        con = sqlite3.connect(DB_NAME)
-        with con:
-            cur = con.cursor()
-            # TODO: factorize this code
-            cur.execute("UPDATE Biblio SET (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) WHERE ID=?",
-                    [form.typ.data,
-                        "temp",
-                        form.author.data,
-                        form.title.data,
-                        form.year.data,
-                        "",
-                        "",
-                        form.journal.data,
-                        "",
-                        "",
-                        "",
-                        ""])
-        con.commit()
-
-        return redirect("/biblio")
+        article = BiblioEntry.query.filter_by(ID=form.ID.data).first()
+        print(article.keywords)
+        article.ID = form.ID.data
+        article.ENTRYTYPE = form.typ.data
+        article.authors = form.author.data
+        article.title = form.title.data
+        article.year = form.year.data
+        article.journal = form.journal.data
+        article.school = form.school.data
+        # article.pdf = form.ID.data
+        article.url = form.url.data
+        article.keywords = form.keywords.data
+        db.session.add(article)
+        db.session.commit()
+        return redirect("/biblio/article:" + article_name)
     return redirect("/biblio")
 
 
@@ -173,7 +169,7 @@ def display_article(idx):
     """Return bibtex entry with id *idx*."""
     bibdat = requests_db("SELECT * FROM Biblio WHERE ID=='{}'".format(idx))
 
-    keyword = bibdat[0].get("keyword", "").split(",")
+    keyword = bibdat[0].get("keywords", "").split(",")
 
     posts = Post.query.filter_by(article=idx).all()
     dposts = []
@@ -182,6 +178,7 @@ def display_article(idx):
     for p in posts:
         date = datetime.datetime.fromtimestamp(p.time).strftime("%d-%m-%Y")
         dposts.append({"author": p.author, "message": p.message, "date": date})
+
     templateVars = {
             "license_info": "Distributed under MIT license.",
             "title": "Article",
@@ -356,7 +353,7 @@ def format_bibdatabase(bib_database, year_filter=None,
 
         # process keywords:
         try:
-            bib["keyword"] = bib["keyword"].split(";")
+            bib["keywords"] = bib.get("keyword", None).split(";")
         except:
             pass
 
@@ -369,6 +366,7 @@ def format_bibdatabase(bib_database, year_filter=None,
     templateVars["references"] = refsbyyear
 
     return templateVars
+
 
 @lm.user_loader
 def load_user(id):
