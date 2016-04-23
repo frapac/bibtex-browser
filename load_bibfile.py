@@ -5,6 +5,7 @@
 
 import sys
 import bibtexparser
+import xmltodict
 from bibtexparser.bparser import BibTexParser
 from bibtexparser.customization import convert_to_unicode
 from sqlalchemy import Column, Integer, String
@@ -17,60 +18,128 @@ from apps.models import BiblioEntry, User
 from apps import db
 
 
-def load_bibtex():
-	"""Load bibtex entries in memory with bibtex parser."""
-	with open('bibliographie.bib') as bibtex_file:
-		bibtex_str = bibtex_file.read()
+def load_bibtex_db(bibfile):
+    """
+    Load a bibtex.bib file in SQL database.
 
-	# parse input biblio as unicode:
-	parser = BibTexParser()
-	parser.customization = convert_to_unicode
-	bib_database = bibtexparser.loads(bibtex_str, parser=parser)
-	bib_database.entries.sort(key=lambda x: x['year'], reverse=True)
-	return bib_database
+    :Parameters:
+    ------------
+    - bibfile (string)
+        Name of the bibtex.bib file to load
+
+    """
+    print("Init database with ", bibfile)
+    with open(bibfile) as bibtex_file:
+        bibtex_str = bibtex_file.read()
+
+    print("Parse BIBTEX file ...")
+    # parse input biblio as unicode:
+    parser = BibTexParser()
+    parser.customization = convert_to_unicode
+    bib_database = bibtexparser.loads(bibtex_str, parser=parser)
+
+    print("Write database ...")
+    for bib in bib_database.entries:
+        try:
+            bib_entry = BiblioEntry(ID=bib.get("ID", ""),
+                    ENTRYTYPE=bib.get("ENTRYTYPE", ""),
+                    authors=bib.get("author", ""),
+                    title=bib.get("title", ""),
+                    year=bib.get("year", ""),
+                    month=bib.get("month", ""),
+                    publisher=bib.get("publisher", ""),
+                    journal=bib.get("journal", ""),
+                    school=bib.get("school", ""),
+                    pdf=bib.get("pdf", ""),
+                    url=bib.get("url", ""),
+                    keywords=bib.get("keywords", ""))
+        except:
+            print("Entry already in database: ", bib.get("ENTRYTYPE"))
+        db.session.add(bib_entry)
+    db.session.commit()
+
+    # Add admin user
+    user = User(name="admin", passwd="oss117")
+    db.session.add(user)
+    db.session.commit()
+    print("Done")
 
 
+def load_xml_db(xmlfile):
+    """
+    Load a bibfile.xml file in SQL database.
 
-def main():
-	if len(sys.argv) < 2:
-		print("Usage:\n\n$ python3 create_db.py yourbibtex.bib\n")
-		sys.exit(-1)
+    :Parameters:
+    ------------
+    - bibfile (string)
+        Name of the bibfile.xml file to load
 
-	print("Init database with ", sys.argv[1])
-	with open(sys.argv[1]) as bibtex_file:
-		bibtex_str = bibtex_file.read()
+    """
+    print("Init database with ", xmlfile)
+    with open(xmlfile) as xml_file:
+        xml_str = xml_file.read()
 
-	print("Parse BIBTEX file ...")
-	# parse input biblio as unicode:
-	parser = BibTexParser()
-	parser.customization = convert_to_unicode
-	bib_database = bibtexparser.loads(bibtex_str, parser=parser)
+    print("Parse XML file ...")
+    # parse input biblio as unicode:
+    parsed_xml = xmltodict.parse(xml_str)
 
-	print("Write database ...")
-	for bib in bib_database.entries:
-		try:
-			bib_entry = BiblioEntry(ID=bib.get("ID", ""),
-					ENTRYTYPE=bib.get("ENTRYTYPE", ""),
-					authors=bib.get("author", ""),
-					title=bib.get("title", ""),
-					year=bib.get("year", ""),
-					month=bib.get("month", ""),
-					publisher=bib.get("publisher", ""),
-					journal=bib.get("journal", ""),
-					school=bib.get("school", ""),
-					pdf=bib.get("pdf", ""),
-					url=bib.get("url", ""),
-					keywords=bib.get("keywords", ""))
-		except:
-			print("Entry already in database: ", bib.get("ENTRYTYPE"))
-		db.session.add(bib_entry)
-	db.session.commit()
+    correspondance = dict(
+            JournalArticle="article",
+            Book="book",
+            ConferenceProceedings="inproceedings",
+            Report="techreport")
 
-	# Add admin user
-	user = User(name="admin", passwd="oss117")
-	db.session.add(user)
-	db.session.commit()
-	print("Done")
+    print("Write database ...")
+    for i, bib in enumerate(parsed_xml["b:Sources"]["b:Source"]):
+        try:
+            dic_author = bib["b:Author"]["b:Author"]["b:NameList"]["b:Person"]
+            if isinstance(dic_author, list):
+                author = ""
+                for auth in dic_author:
+                    author += auth["b:Last"]+", " + auth["b:First"] + " and "
+                # Remove last "and":
+                author = author[:-4]
+            else:
+                author = dic_author["b:Last"] + ", " + dic_author["b:First"]
+        except KeyError:
+            author = bib["b:Author"]["b:Author"].get("b:Corporate", "")
+
+        sourcetype = bib.get("b:SourceType", "")
+        try:
+            entrytype = correspondance[sourcetype]
+        except KeyError:
+            entrytype = "misc"
+
+        bib_entry = BiblioEntry(ID=bib.get("b:Tag", ""),
+                                ENTRYTYPE=entrytype,
+                                authors=author,
+                                title=bib.get("b:Title", ""),
+                                year=bib.get("b:Year", "1970"),
+                                month=bib.get("b:Month", ""),
+                                publisher=bib.get("b:Publisher", ""),
+                                journal=bib.get("b:JournalName", ""))
+        db.session.add(bib_entry)
+    db.session.commit()
+    print("Done")
+
+
+def load_file_in_db(file_name):
+    extension = file_name.split(".")[-1]
+
+    if extension == "bib":
+        load_bibtex_db(file_name)
+    elif extension == "xml":
+        load_xml_db(file_name)
+    else:
+        print("Extension must be either .bib or .xml")
+
 
 if __name__ == '__main__':
-	main()
+    if len(sys.argv) < 2:
+        print("Usage:\n\n$ python3 load_bibfile.py yourbibtex.bib\n")
+        sys.exit(-1)
+
+    # Get extension of file to load:
+    file_name = sys.argv[1]
+    load_file_in_db(file_name)
+
