@@ -288,7 +288,7 @@ def render_hal_biblio(keywords):
 
     bib_database.entries.sort(key=lambda x: x['year'], reverse=True)
     templateVars = format_bibdatabase(bib_database.entries)
-    return render_template("references.html", **templateVars)
+    return render_template("hal.html", **templateVars)
 
 
 def format_bibdatabase(bib_database, year_filter=None,

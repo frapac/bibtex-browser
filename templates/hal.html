@@ -40,9 +40,13 @@
       </ul>
     </div>
   </div>
-  {% include "modal.html" %}
+
+
+{% include "modal.html" %}
+
 
 <div class="nine columns">
+
   <div class="container bs-docs-container">
     <div class="bs-example">
 
@@ -54,8 +58,6 @@
         </form>
       </div>
 
-      <button id="myBtn">+</button>
-
       <ul class="list-group">
 
         {% for y, refs in references%}
@@ -65,7 +67,8 @@
             {% for r in refs%}
 
             <li class="list-group-item">
-              {{ r.authors }}. <b class="type"> {{r.ENTRYTYPE}} </b>
+            <div id="{{r.ID}}">
+            {{ r.authors }}. <b class="type"> {{r.ENTRYTYPE}} </b>
               <br/>
               <em> <a href="/biblio/article:{{r.ID}}" style="color:#696969"> {{r.title}}. </a></em>
               <br/>
@@ -78,7 +81,9 @@
               <br/>
               <b> Keywords </b>:{% for k in r.keywords%} <b class="keyword">{{k}}</b> {%endfor %}
               {% endif %}
+          </div>
             </li>
+
             {% endfor %}
           </ul>
         {% endfor %}
