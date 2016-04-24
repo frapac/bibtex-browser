@@ -11,7 +11,7 @@ div.header{
 }
 
 div.main{
-    margin: 10 2rem;
+    margin: 10 1rem;
 }
 
 div.search-field{
@@ -82,3 +82,18 @@ li.message{
     list-style-type: none;
 }
 
+div.index-content{
+    margin-left: 30rem;
+    margin-right: 1rem;
+    padding: 1rem 3rem;
+}
+
+div.status-content{
+    padding: 1rem 1rem;
+    margin-right: 0rem;
+    margin-top: 4rem;
+    float: right;
+    border-radius: 4px;
+    border: 1px solid #EEE8E8;
+    background-color: #d0ddea;
+}

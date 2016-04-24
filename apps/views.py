@@ -25,7 +25,6 @@ def not_found_error(error):
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=["GET", "POST"])
-@app.route('/index', methods=["GET", "POST"])
 def login():
     """Login to application."""
     form = LoginForm()
@@ -37,7 +36,7 @@ def login():
             db.session.commit()
             login_user(user, remember=True)
             print(request.args.get("next"))
-            return redirect(request.args.get('next') or "/biblio")
+            return redirect(request.args.get('next') or "/index")
         return redirect('/login')
     return render_template('about.html', form=form, title="Log in")
 
@@ -53,20 +52,19 @@ def logout():
     return redirect('/')
 
 
-def requests_db(req):
-    """Send a request to the DB and return a list of dict."""
-    con = sqlite3.connect(DB_NAME)
-    with con:
-        con.row_factory = sqlite3.Row
-        cur = con.cursor()
-        cur.execute(req)
+@app.route("/index")
+def get_index():
+    form = SearchForm()
 
-        rows = cur.fetchall()
-        bibdat = []
-        for row in rows:
-            f = dict(zip(row.keys(), row))
-            bibdat.append(f)
-    return bibdat
+    activity = db.session.query(Event).all()
+    events = []
+    # Store events in a dictionnary
+    for p in activity:
+        date = datetime.datetime.fromtimestamp(p.time).strftime("%d-%m-%Y")
+        events.append({"author": p.author, "article": p.article, "date": date, "type":p.event})
+
+    num_entries = db.session.query(BiblioEntry).count()
+    return render_template("index.html", title="Index", form=form, user=current_user.name, events=events, num_entries=num_entries)
 
 
 @app.route('/biblio/search', methods=['GET', 'POST'])
@@ -93,25 +91,22 @@ def add_entry():
     """Add a new entry to the bibliography."""
     form = BiblioForm()
     if form.validate_on_submit():
-        con = sqlite3.connect(DB_NAME)
-        with con:
-            cur = con.cursor()
-            # TODO: factorize this code
-            cur.execute("INSERT INTO Biblio VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    [form.ID.data,
-                        form.typ.data,
-                        form.author.data,
-                        form.title.data,
-                        form.year.data,
-                        "",
-                        "",
-                        form.journal.data,
-                        "",
-                        "",
-                        "",
-                        ""])
-            con.commit()
+        bib_entry = BiblioEntry(ID=form.ID.data,
+                                ENTRYTYPE=form.typ.data,
+                                authors=form.author.data,
+                                title=form.title.data,
+                                year=form.year.data,
+                                school="",
+                                publisher="",
+                                keywords=form.keywords.data,
+                                url=form.url.data,
+                                journal=form.journal.data)
 
+        db.session.add(bib_entry)
+        user = current_user.name
+        event = Event(author=user, article=form.ID.data, event="ADD", time=time.time())
+        db.session.add(event)
+        db.session.commit()
         return redirect("/biblio")
     return redirect("/biblio")
 
@@ -124,7 +119,6 @@ def update_entry():
     article_name = request.environ["HTTP_REFERER"].split(":")[-1]
     if form.validate_on_submit():
         article = BiblioEntry.query.filter_by(ID=form.ID.data).first()
-        print(article.keywords)
         article.ID = form.ID.data
         article.ENTRYTYPE = form.typ.data
         article.authors = form.author.data
@@ -132,10 +126,14 @@ def update_entry():
         article.year = form.year.data
         article.journal = form.journal.data
         article.school = form.school.data
-        # article.pdf = form.ID.data
         article.url = form.url.data
         article.keywords = form.keywords.data
         db.session.add(article)
+
+        user = current_user.name
+        event = Event(author=user, article=form.ID.data, event="UPDATE", time=time.time())
+        db.session.add(event)
+
         db.session.commit()
         return redirect("/biblio/article:" + article_name)
     return redirect("/biblio")
@@ -151,6 +149,10 @@ def post_comment():
     user = current_user.name
     post = Post(author=user, article=article, message=form.message.data, time=tim)
     db.session.add(post)
+
+    user = current_user.name
+    event = Event(author=user, article=article, event="COMMENT", time=time.time())
+    db.session.add(event)
     db.session.commit()
     return redirect("/biblio/article:" + article)
 
@@ -160,6 +162,7 @@ def post_comment():
 def get_bibtex(idx):
     """Return bibtex entry with id *idx*."""
     bibdat = requests_db("SELECT * FROM Biblio WHERE ID=='{}'".format(idx))
+    bib = BiblioEntry.query.filter_by(ID=idx).first()
     return jsonify(bibdat[0])
 
 
@@ -367,6 +370,21 @@ def format_bibdatabase(bib_database, year_filter=None,
 
     return templateVars
 
+
+def requests_db(req):
+    """Send a request to the DB and return a list of dict."""
+    con = sqlite3.connect(DB_NAME)
+    with con:
+        con.row_factory = sqlite3.Row
+        cur = con.cursor()
+        cur.execute(req)
+
+        rows = cur.fetchall()
+        bibdat = []
+        for row in rows:
+            f = dict(zip(row.keys(), row))
+            bibdat.append(f)
+    return bibdat
 
 @lm.user_loader
 def load_user(id):

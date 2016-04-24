@@ -50,7 +50,8 @@ class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     author = db.Column(db.String(64))
     article = db.Column(db.String(64))
-    event = db.Column(db.String(32))
+    event = db.Column(db.String(16))
+    time = db.Column(db.Integer)
 
 
 class User(db.Model):

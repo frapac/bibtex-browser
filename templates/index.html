@@ -1,7 +1,61 @@
 {% extends "base.html" %}
 {% set page = 'index' %}
 {% block content %}
-Index.
-{% endblock %}
 
+<div class="index-content">
+      <div class="nine columns">
+    <h1> The bibliography database </h1>
+    Search in bibliography:
+
+      <div class="search-field">
+        <form method="post" action="/biblio/search">
+          {{ form.csrf_token }}
+          <input type="text" name="name" size="60" tabindex="1">
+          <input type="submit" value="Search" tabindex="2">
+        </form>
+      </div>
+
+      <hr/>
+
+
+  <div class="news-feed">
+      Previous activity:
+      <p>
+      <ul class="list-group">
+          {% for event in events %}
+          <li class="list-group-item">
+
+          {% if event.type == "COMMENT"%}
+          <b> {{event.date}} </b>: {{event.author}} comments <a href="/biblio/article:{{event.article}}"> {{event.article}} </a>
+          {%endif%}
+
+          {% if event.type == "ADD"%}
+          <b> {{event.date}} </b>: {{event.author}} posts <a href="/biblio/article:{{event.article}}"> {{event.article}} </a>
+          {%endif%}
+
+          {% if event.type == "UPDATE"%}
+          <b> {{event.date}} </b>: {{event.author}} updates <a href="/biblio/article:{{event.article}}"> {{event.article}} </a>
+          {%endif%}
+          </li>
+          {% endfor %}
+  </ul>
+      </p>
+  </div>
+</div>
+
+<div class="three columns">
+    <div class="status-content">
+        <p>
+        Hello <b> {{user}} </b>
+        </p>
+        <p>  Some statistics:
+        <ul>
+            <li> Number of articles: {{num_entries}} </li>
+        </ul>
+        </p>
+    </div>
+</div>
+</div>
+
+{% endblock %}
 
