@@ -60,7 +60,7 @@ def get_index():
     events = []
     # Store events in a dictionnary
     for p in activity:
-        date = datetime.datetime.fromtimestamp(p.time).strftime("%d-%m-%Y")
+        date = datetime.datetime.fromtimestamp(p.time).strftime("%d-%m-%Y %H:%M")
         events.append({"author": p.author, "article": p.article, "date": date, "type":p.event})
 
     num_entries = db.session.query(BiblioEntry).count()
@@ -179,7 +179,7 @@ def display_article(idx):
 
     # Store posts in a dictionnary
     for p in posts:
-        date = datetime.datetime.fromtimestamp(p.time).strftime("%d-%m-%Y")
+        date = datetime.datetime.fromtimestamp(p.time).strftime("%d-%m-%Y %H:%M")
         dposts.append({"author": p.author, "message": p.message, "date": date})
 
     templateVars = {
@@ -357,7 +357,7 @@ def format_bibdatabase(bib_database, year_filter=None,
         # process keywords:
         try:
             bib["keywords"] = bib.get("keyword", None).split(";")
-        except:
+        except Exception as e:
             pass
 
     refsbyyear = []
@@ -386,6 +386,8 @@ def requests_db(req):
             bibdat.append(f)
     return bibdat
 
+
 @lm.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
