@@ -4,40 +4,42 @@
 {% block content %}
 
 <div class="row">
-  <div class="three columns"   style="border-right: thick solid #F1F1F1; border-width: 2px;">
-  <div>
-    <h5> Filters </h5>
+  <div class="three columns leftcolumn">
+    <div>
 
-      <a href="/biblio" class="buttonlink" tabindex="3">Clear</a>
+      <!-- Add filters in a left column -->
+      <h5> Filters </h5>
 
-      <hr/ class="ref">
-      <ul  class="navlist" style="list-style-type: none;">
-           Years
-        {% for y in years%}
-         <li class="li-filter">
-           <input type="checkbox" name="years" value="{{y}}" class="checkyear" {%if y in checked%} checked {% endif %}>
-           <a href="/biblio/year={{y}}:">{{y}}</a>
-         </li>
-       {%endfor%}
-      </ul>
+        <a href="/biblio" class="buttonlink" tabindex="3">Clear</a>
 
-      <hr/ class="ref">
-      <ul  class="navlist" style="list-style-type: none;">  Types
-        {% for t in types%}
-          <li class="li-filter">
-            <input type="checkbox" name="types" class="checktype" value="{{t}}" {%if t in checked%} checked {% endif %}>
-            <a href="/biblio/type={{t}}">{{t}}</a>
-          </li>
-        {%endfor%}
-      </ul>
+        <hr/ class="ref">
+          <ul  class="navlist nobullet">
+            Years
+            {% for y in years%}
+            <li class="li-filter">
+              <input type="checkbox" name="years" value="{{y}}" class="checkyear" {%if y in checked%} checked {% endif %}>
+              <a href="/biblio/year={{y}}:">{{y}}</a>
+            </li>
+            {%endfor%}
+          </ul>
 
-      <hr/ class="ref">
-      <ul class="authorul">  Authors
-        <br/>
-        {% for a in authors%}
-        <a class="author" href="/biblio/author={{a}}"> {{a}} </a>
-        {%endfor%}
-      </ul>
+        <hr/ class="ref">
+          <ul  class="navlist nobullet">  Types
+            {% for t in types%}
+            <li class="li-filter">
+              <input type="checkbox" name="types" class="checktype" value="{{t}}" {%if t in checked%} checked {% endif %}>
+              <a href="/biblio/type={{t}}">{{t}}</a>
+            </li>
+            {%endfor%}
+          </ul>
+
+        <hr/ class="ref">
+          <ul class="authorul">  Authors
+          <br/>
+          {% for a in authors%}
+            <a class="author" href="/biblio/author={{a}}"> {{a}} </a>
+          {%endfor%}
+          </ul>
     </div>
   </div>
 
@@ -45,52 +47,53 @@
 {% include "modal.html" %}
 
 
-<div class="nine columns">
+  <div class="nine columns">
 
-  <div class="container bs-docs-container">
-    <div class="bs-example">
+    <button id="myBtn" class="hidden">+</button>
+    <div class="container bs-docs-container">
+      <div class="bs-example">
 
-      <div class="search-field">
-        <form method="post" action="/biblio/search">
-          {{ form.csrf_token }}
-          <input type="text" name="name" size="60" tabindex="1">
-          <input type="submit" value="Search" tabindex="2">
-        </form>
+        <div class="search-field">
+          <form method="post" action="/biblio/search">
+            {{ form.csrf_token }}
+            <input type="text" name="name" size="60" tabindex="1">
+            <input type="submit" value="Search" tabindex="2">
+          </form>
+        </div>
+
+        <ul class="list-group">
+
+          {% for y, refs in references%}
+            <hr/>
+            <h4> {{y}} </h4>
+            <ul>
+              {% for r in refs%}
+
+              <li class="list-group-item">
+                <div id="{{r.ID}}">
+                  <div id="authors{{r.ID}}"> {{ r.authors }}.</div> <b class="type" id="type{{r.ID}}"> {{r.ENTRYTYPE}} </b> <a class="elink" onclick="addHALEntry('{{r.ID}}')"> + </a>
+                  <br/>
+                  <em><a href="/biblio/article:{{r.ID}}" id="title{{r.ID}}" class="linkarticle"> {{r.title}}. </a></em>
+                  <br/>
+                  <div id="source{{r.ID}}"> {{r.origin}} </div>
+                   <a href="/bibtex:{{r.ID}}" class="elink"> <b> [bib] </b> </a>
+                  {% if r.link %}
+                  <a href="{{r.link}}" class="elink" id="url{{r.ID}}"> <b> [url] </b> </a>
+                  {% endif %}
+                  {% if r.keywords%}
+                  <p id="keywords{{r.ID}}"><b> Keywords </b>:{% for k in r.keywords%} <b class="keyword">{{k}}</b> {%endfor %}</p>
+                  {% endif %}
+                  <p class="hidden" id="data{{r.ID}}"> {{r}} </p>
+                </div>
+              </li>
+
+              {% endfor %}
+            </ul>
+          {% endfor %}
+        </ul>
       </div>
-
-      <ul class="list-group">
-
-        {% for y, refs in references%}
-          <hr/>
-          <h4> {{y}} </h4>
-          <ul>
-            {% for r in refs%}
-
-            <li class="list-group-item">
-            <div id="{{r.ID}}">
-            {{ r.authors }}. <b class="type"> {{r.ENTRYTYPE}} </b>
-              <br/>
-              <em> <a href="/biblio/article:{{r.ID}}" style="color:#696969"> {{r.title}}. </a></em>
-              <br/>
-              {{r.origin}}
-               <a href="/bibtex:{{r.ID}}" class="elink"> <b> [bib] </b> </a>
-              {% if r.link %}
-                <a href="{{r.link}}" class="elink"> <b> [url] </b> </a>
-              {% endif %}
-              {% if r.keywords%}
-              <br/>
-              <b> Keywords </b>:{% for k in r.keywords%} <b class="keyword">{{k}}</b> {%endfor %}
-              {% endif %}
-          </div>
-            </li>
-
-            {% endfor %}
-          </ul>
-        {% endfor %}
-      </ul>
     </div>
-  </div>
 
-</div>
+  </div>
 </div>
 {% endblock %}

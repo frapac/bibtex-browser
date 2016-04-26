@@ -9,22 +9,18 @@
   </head>
 
   <body>
-  <div class="header">
-      <a href="/index" style="text-decoration:none; color:#E5E4E2"> <b> Bibliography </b> </a>
-  <div class="settings" style="float:right">
-      <a href="/logout"> <img src="static/img/log.svg" width=25px></a>
-  </div>
-  </div>
+    <div class="header">
+      <a href="/index" class="header"> <b> Bibliography </b> </a>
+      <div class="settings">
+        <a href="/logout"> <img src="static/img/log.svg" width=25px></a>
+      </div>
+    </div>
 
-  <div class="main">
+    <div class="main">
 
-        {% block content %}
-        {% endblock %}
-  </div>
-<!--
-  <footer class="footer">
-  {{ license_info }} {{engine}}. Contact: francois.pacaud@mines-paris.org
-  </footer> -->
+      {% block content %}
+      {% endblock %}
+    </div>
 
 <script type="text/javascript">
   // Get the modal
@@ -35,17 +31,33 @@
   var span = document.getElementsByClassName("close")[0];
   // When the user clicks the button, open the modal
   btn.onclick = function() {
-      modal.style.display = "block";
+    modal.style.display = "block";
   }
+  function showModal(){
+    modal.style.display = "block";
+  }
+  function addHALEntry(id){
+    console.log(id);
+    var halEntry = document.getElementById("data" + id).innerText;
+    var dataEntry = convertStringToJSON(halEntry);
+
+    console.log(dataEntry["link"]);
+  }
+
+  function convertStringToJSON(str){
+    dataEntry = JSON.stringify(eval("(" + str + ")"));
+    return JSON.parse(dataEntry);
+  }
+
   // When the user clicks on <span> (x), close the modal
   span.onclick = function() {
-      modal.style.display = "none";
+    modal.style.display = "none";
   }
   // When the user clicks anywhere outside of the modal, close it
   window.onclick = function(event) {
-      if (event.target == modal) {
-          modal.style.display = "none";
-      }
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
   }
 
   document.onkeypress = function(evt) {

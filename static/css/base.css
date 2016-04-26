@@ -10,6 +10,15 @@ div.header{
     font-size: 30px;
 }
 
+a.header{
+  text-decoration:none;
+  color:#E5E4E2;
+}
+
+div.settings{
+  float:right;
+}
+
 div.main{
     margin: 10 1rem;
 }
@@ -97,3 +106,48 @@ div.status-content{
     border: 1px solid #EEE8E8;
     background-color: #d0ddea;
 }
+
+.hidden{
+  display:none;
+}
+
+div.leftcolumn{
+  border-right: thick solid #F1F1F1; border-width: 5px;
+}
+
+ul.nobullet{
+  list-style-type: none;
+}
+
+a.linkarticle{
+  color:#696969;
+}
+
+/* Article page: */
+p.authors{
+  color:#888888; font-style: italic;
+}
+
+div.form{
+  margin-top: 5px;
+}
+
+p.form{
+  margin-top: 5px; float: right; position:relative;
+}
+
+
+/* Login page */
+div.login{
+  align-items: center;
+  text-align: center;
+}
+
+h1.login{
+  font-style: normal; color: #000000
+}
+
+input.login{
+  font-style: normal;
+}
+

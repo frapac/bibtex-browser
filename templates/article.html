@@ -6,27 +6,24 @@
 
     <h1><b> {{article.title}} </b></h1>
 
-    <p style="color:#888888; font-style: italic;"> {{article.authors}} </p>
+    <p class="authors"> {{article.authors}} </p>
 
     <h4> Abstract</h4>
 
     Some discussion about something that might be interesting.
 
-    <hr/ style="margin-top:3rem">
+    <hr/>
 
   {% if keyword|length > 0  and keyword[0] != ""%}
     <br/>
     <b> Keywords </b>:{% for k in keyword%} <b class="keyword">{{k}}</b> {%endfor %}
   {% endif %}
 
-  <p style="margin-top:1rem">
+  <p>
     <b> Type: </b> <b class="type">{{article.ENTRYTYPE}}</b>
   </p>
 
-  <hr/ style="margin-top:6rem">
-  <!-- <p style="font-size: 12; color:#888888;"> -->
-  <!--   <b> Added by: Foo - yesterday</b> -->
-  <!-- </p> -->
+  <hr/>
 
 
     <button id="myBtn">Modify</button>
@@ -72,47 +69,47 @@
           </div>
         </div>
 
-        <div class="row" style="margin-top: 5px">
+        <div class="row form">
           <div class="one column"><b>Title</b></div>
           <div class="eleven columns">{{bibform.title(size=80, value=article.title)}}</div>
         </div>
 
-        <div class="row" style="margin-top: 5px">
+        <div class="row form">
           <div class="one column"><b>Author(s)</b></div>
           <div class="eleven columns">{{ bibform.author(size=50, value=article.authors) }}</div>
           <br/>
         </div>
 
-        <div class="row" style="margin-top: 5px">
+        <div class="row form">
           <div class="one column"><b>Year</b></div>
           <div class="eleven columns">{{ bibform.year(size=4, value=article.year) }}</div>
         </div>
-        <div class="row" style="margin-top: 5px">
+        <div class="row form">
           <div class="one column"><b>Journal</b></div>
           <div class="eleven columns">{{ bibform.journal(size=50, value=article.journal) }}</div>
         </div>
 
-        <div class="row" style="margin-top: 5px">
+        <div class="row form">
           <div class="one column"><b>ID</b></div>
           <div class="eleven columns">{{ bibform.ID(size=20, value=article.ID) }}</div>
         </div>
 
-        <div class="row" style="margin-top: 5px">
+        <div class="row form">
           <div class="one column"><b>Keyword</b></div>
           <div class="eleven columns">{{ bibform.keywords(size=20, value=article.keywords) }}</div>
         </div>
 
-        <div class="row" style="margin-top: 5px">
+        <div class="row form">
           <div class="one column"><b>School</b></div>
           <div class="eleven columns">{{ bibform.school(size=20, value=article.school) }}</div>
         </div>
 
-        <div class="row" style="margin-top: 5px">
+        <div class="row form">
           <div class="one column"><b>URL</b></div>
           <div class="eleven columns">{{ bibform.url(size=20, value=article.url) }}</div>
         </div>
 
-        <p style="margin-top: 5px; float: right; position:relative;">
+        <p>
           <input type="submit" class="button-primary" value="Add">
         </p>
     </form>

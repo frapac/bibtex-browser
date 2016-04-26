@@ -4,43 +4,44 @@
 {% block content %}
 
 <div class="row">
-  <div class="three columns"   style="border-right: thick solid #F1F1F1; border-width: 2px;">
-  <div>
-    <h5> Filters </h5>
+  <div class="three columns leftcolumn">
+    <div>
+      <h5> Filters </h5>
 
-      <a href="/biblio" class="buttonlink" tabindex="3">Clear</a>
+        <a href="/biblio" class="buttonlink" tabindex="3">Clear</a>
 
-      <hr/ class="ref">
-      <ul  class="navlist" style="list-style-type: none;">
-           Years
-        {% for y in years%}
-         <li class="li-filter">
-           <input type="checkbox" name="years" value="{{y}}" class="checkyear" {%if y in checked%} checked {% endif %}>
-           <a href="/biblio/year={{y}}:">{{y}}</a>
-         </li>
-       {%endfor%}
-      </ul>
+        <hr/ class="ref">
+        <ul  class="navlist nobullet">
+          Years
+          {% for y in years%}
+          <li class="li-filter">
+            <input type="checkbox" name="years" value="{{y}}" class="checkyear" {%if y in checked%} checked {% endif %}>
+            <a href="/biblio/year={{y}}:">{{y}}</a>
+          </li>
+          {%endfor%}
+        </ul>
 
-      <hr/ class="ref">
-      <ul  class="navlist" style="list-style-type: none;">  Types
-        {% for t in types%}
+        <hr/ class="ref">
+        <ul  class="navlist nobullet">  Types
+          {% for t in types%}
           <li class="li-filter">
             <input type="checkbox" name="types" class="checktype" value="{{t}}" {%if t in checked%} checked {% endif %}>
             <a href="/biblio/type={{t}}">{{t}}</a>
           </li>
-        {%endfor%}
-      </ul>
+          {%endfor%}
+        </ul>
 
-      <hr/ class="ref">
-      <ul class="authorul">  Authors
+        <hr/ class="ref">
+        <ul class="authorul">  Authors
         <br/>
         {% for a in authors%}
         <a class="author" href="/biblio/author={{a}}"> {{a}} </a>
         {%endfor%}
-      </ul>
-    </div>
+        </ul>
+      </div>
   </div>
-  {% include "modal.html" %}
+
+{% include "modal.html" %}
 
 <div class="nine columns">
   <div class="container bs-docs-container">
@@ -67,7 +68,7 @@
             <li class="list-group-item">
               {{ r.authors }}. <b class="type"> {{r.ENTRYTYPE}} </b>
               <br/>
-              <em> <a href="/biblio/article:{{r.ID}}" style="color:#696969"> {{r.title}}. </a></em>
+              <em> <a href="/biblio/article:{{r.ID}}"> {{r.title}}. </a></em>
               <br/>
               {{r.origin}}
                <a href="/bibtex:{{r.ID}}" class="elink"> <b> [bib] </b> </a>

@@ -1,16 +1,14 @@
 
-<!-- The Modal -->
 <div id="myModal" class="modal">
 
-  <!-- Modal content -->
   <div class="modal-content">
     <span class="close"><b>x</b></span>
     <p>Add entry to bibliography:</p>
     <form action="/biblio/addentry" method="post" name="login">
-        {{ bibform.hidden_tag() }}
+      {{ bibform.hidden_tag() }}
 
-        <div class="row">
-          <div class="one column"><b>Type</b></div>
+      <div class="row">
+        <div class="one column"><b>Type</b></div>
           <div class="eleven columns">
             <select name="typ">
               <option value="phdthesis">PhD</option>
@@ -70,5 +68,4 @@
   </div>
 
 </div>
-
 
