@@ -10,53 +10,55 @@
       <div class="row">
         <div class="one column"><b>Type</b></div>
           <div class="eleven columns">
-            <select name="typ">
+            <select name="typ" id="bibtype">
               <option value="phdthesis">PhD</option>
               <option value="article">Article</option>
               <option value="book">Book</option>
               <option value="inproceedings">In Proceedings</option>
+              <option value="misc">Misc</option>
+              <option value="techreport">Tech Report</option>
             </select>
           </div>
         </div>
 
         <div class="row" style="margin-top: 5px">
           <div class="one column"><b>Title</b></div>
-          <div class="eleven columns">{{ bibform.title(size=80) }}</div>
+          <div class="eleven columns">{{ bibform.title(size=90, id="bibtitle") }}</div>
         </div>
 
         <div class="row" style="margin-top: 5px">
           <div class="one column"><b>Author(s)</b></div>
-          <div class="eleven columns">{{ bibform.author(size=50) }}</div>
+          <div class="eleven columns">{{ bibform.author(size=80, id="bibauthor") }}</div>
           <br/>
         </div>
 
         <div class="row" style="margin-top: 5px">
           <div class="one column"><b>Year</b></div>
-          <div class="eleven columns">{{ bibform.year(size=4) }}</div>
+          <div class="eleven columns">{{ bibform.year(size=4, id="bibyear") }}</div>
         </div>
         <div class="row" style="margin-top: 5px">
           <div class="one column"><b>Journal</b></div>
-          <div class="eleven columns">{{ bibform.journal(size=20) }}</div>
+          <div class="eleven columns">{{ bibform.journal(size=30, id="bibjournal") }}</div>
         </div>
 
         <div class="row" style="margin-top: 5px">
           <div class="one column"><b>ID</b></div>
-          <div class="eleven columns">{{ bibform.ID(size=20) }}</div>
+          <div class="eleven columns">{{ bibform.ID(size=20, id="bibid") }}</div>
         </div>
 
         <div class="row" style="margin-top: 5px">
           <div class="one column"><b>Keyword</b></div>
-          <div class="eleven columns">{{ bibform.keywords(size=20) }}</div>
+          <div class="eleven columns">{{ bibform.keywords(size=80, id="bibkeyword") }}</div>
         </div>
 
         <div class="row" style="margin-top: 5px">
           <div class="one column"><b>School</b></div>
-          <div class="eleven columns">{{ bibform.school(size=20) }}</div>
+          <div class="eleven columns">{{ bibform.school(size=20, id="bibschool") }}</div>
         </div>
 
         <div class="row" style="margin-top: 5px">
           <div class="one column"><b>URL</b></div>
-          <div class="eleven columns">{{ bibform.url(size=20) }}</div>
+          <div class="eleven columns">{{ bibform.url(size=80, id="biburl") }}</div>
         </div>
 
 

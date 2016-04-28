@@ -11,3 +11,5 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///'+ os.path.join(basedir, DB_NAME)
 PORT = 5000
 DEBUG = True
 
+HAL_QUERY_API = "https://api.archives-ouvertes.fr/search/?q={0}~3&wt=bibtex"
+

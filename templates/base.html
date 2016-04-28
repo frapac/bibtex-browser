@@ -33,15 +33,25 @@
   btn.onclick = function() {
     modal.style.display = "block";
   }
+
   function showModal(){
     modal.style.display = "block";
   }
+
   function addHALEntry(id){
     console.log(id);
     var halEntry = document.getElementById("data" + id).innerText;
     var dataEntry = convertStringToJSON(halEntry);
+    document.getElementById("bibtitle").value = dataEntry["title"];
+    document.getElementById("bibyear").value = dataEntry["year"];
+    document.getElementById("bibid").value = dataEntry["ID"];
+    document.getElementById("bibauthor").value = dataEntry["author"];
+    document.getElementById("bibtype").value = dataEntry["ENTRYTYPE"];
+    document.getElementById("bibjournal").value = dataEntry["origin"];
+    document.getElementById("bibkeyword").value = dataEntry["keywords"];
+    document.getElementById("biburl").value = dataEntry["link"];
 
-    console.log(dataEntry["link"]);
+    modal.style.display = "block";
   }
 
   function convertStringToJSON(str){
@@ -114,7 +124,7 @@
   }
 
   var it;
-  for (it=0; it< checkedyear.length; it++){
+  for (it=0; it < checkedyear.length; it++){
     checkedyear[it].onclick = checkClicked;
   }
   for (it=0; it< checkedtype.length; it++){

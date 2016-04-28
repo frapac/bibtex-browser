@@ -15,7 +15,7 @@ from collections import defaultdict
 from apps.models import *
 from apps import app, db, lm
 
-from config import DB_NAME
+from config import DB_NAME, HAL_QUERY_API
 
 
 @app.errorhandler(404)
@@ -278,10 +278,8 @@ def render_hal_biblio(keywords):
     # https://api.archives-ouvertes.fr/search/?q=title_t:%22microgrid%22~3&wt=json
     # https://api.archives-ouvertes.fr/search/?q=auth_t:%22olivier%20bonin%22~3&wt=bibtex
 
-    # TODO: move URL in config file
-    biblio = requests.get("https://api.archives-ouvertes.fr/search/?q={0}~3&wt=bibtex".format(keywords)).text
+    biblio = requests.get(HAL_QUERY_API.format(keywords)).text
 
-    # TODO: dry this code.
     parser = BibTexParser()
     parser.customization = convert_to_unicode
     bib_database = bibtexparser.loads(biblio, parser=parser)
