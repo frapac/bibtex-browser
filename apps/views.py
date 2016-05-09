@@ -1,8 +1,8 @@
 
-import sqlite3
 import requests
 import time
 import datetime
+from sqlalchemy import or_, and_
 from flask import jsonify, render_template, redirect,flash, request
 from flask.ext.login import login_required, logout_user, login_user, current_user
 
@@ -74,11 +74,11 @@ def search_biblio():
     # Get the form corresponding to the query:
     form = SearchForm()
     if form.validate_on_submit():
-        s = form.name.data
+        s = "%" + form.name.data + "%"
         # Send request to database:
-        bibdat = requests_db("SELECT * FROM Biblio"
-                " WHERE authors LIKE '%{}%'"
-                " OR title LIKE '%{}%'".format(s, s))
+        bibdat = convert_rows_to_dict(db.session.query(BiblioEntry)\
+                                        .filter(or_(BiblioEntry.authors.like(s),
+                                                    BiblioEntry.title.like(s))))
         # Format bibdat and sort by years:
         templateVars = format_bibdatabase(bibdat)
         return render_template("references.html", **templateVars)
@@ -161,18 +161,18 @@ def post_comment():
 @login_required
 def get_bibtex(idx):
     """Return bibtex entry with id *idx*."""
-    bibdat = requests_db("SELECT * FROM Biblio WHERE ID=='{}'".format(idx))
-    bib = BiblioEntry.query.filter_by(ID=idx).first()
-    return jsonify(bibdat[0])
+    bibdat =  BiblioEntry.query.filter_by(ID=idx).first()
+    result = bibdat.__dict__
+    del result["_sa_instance_state"]
+    return jsonify(result)
 
 
 @app.route('/biblio/article:<string:idx>', methods=['GET'])
 @login_required
 def display_article(idx):
     """Return bibtex entry with id *idx*."""
-    bibdat = requests_db("SELECT * FROM Biblio WHERE ID=='{}'".format(idx))
-
-    keyword = bibdat[0].get("keywords", "").split(",")
+    bibdat =  BiblioEntry.query.filter_by(ID=idx).first()
+    keyword = (bibdat.keywords).split(",")
 
     posts = Post.query.filter_by(article=idx).all()
     dposts = []
@@ -186,7 +186,7 @@ def display_article(idx):
             "license_info": "Distributed under MIT license.",
             "title": "Article",
             "engine": "Powered by Flask",
-            "article": bibdat[0],
+            "article": bibdat,
             "keyword": keyword,
             "bibform": BiblioForm(),
             "commentform": PostForm(),
@@ -200,10 +200,10 @@ def display_article(idx):
 @login_required
 def get_all_biblio():
     """Return all bibliography, without filters."""
-    bibdat = requests_db("SELECT * FROM Biblio ORDER BY year DESC")
-    years = requests_db("SELECT DISTINCT year FROM Biblio ORDER BY year DESC")
+    bibdat = convert_rows_to_dict(db.session.query(BiblioEntry).all())
+    years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
     templateVars = format_bibdatabase(bibdat)
-    templateVars["years"] = [y["year"] for y in years]
+    templateVars["years"] = years
     return render_template("references.html", **templateVars)
 
 
@@ -211,13 +211,12 @@ def get_all_biblio():
 @login_required
 def get_biblio_year(year):
     """Return bibliography corresponding to given year."""
-    subfield = "".join("year=={} OR ".format(yy) for yy in year.split(":"))
-
-    bibdat = requests_db("SELECT * FROM Biblio WHERE {}".format(subfield[:-3]))
-    years = requests_db("SELECT DISTINCT year FROM Biblio ORDER BY year DESC")
+    rows = db.session.query(BiblioEntry).filter(or_(*[BiblioEntry.year.like(yy) for yy in year.split(":")]))
+    bibdat = convert_rows_to_dict(rows)
+    years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
     templateVars = format_bibdatabase(bibdat)
-    templateVars["checked"] = [int(y) for y in year.split(":")]
-    templateVars["years"] = [y["year"] for y in years]
+    templateVars["checked"] = [str(y) for y in year.split(":")]
+    templateVars["years"] = years
     return render_template("references.html", **templateVars)
 
 
@@ -225,13 +224,12 @@ def get_biblio_year(year):
 @login_required
 def get_biblio_types(types):
     """Return bibliography corresponding to given type."""
-    subfield = "".join("ENTRYTYPE=='{}' OR ".format(tt) for tt in types.split(":"))
-
-    bibdat = requests_db("SELECT * FROM Biblio WHERE {}".format(subfield[:-3]))
-    years = requests_db("SELECT DISTINCT year FROM Biblio ORDER BY year DESC")
-
+    rows = db.session.query(BiblioEntry).filter(or_(*[BiblioEntry.ENTRYTYPE.like(yy) for yy in types.split(":")]))
+    bibdat = convert_rows_to_dict(rows)
+    years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
     templateVars = format_bibdatabase(bibdat, type_filter=types)
-    templateVars["years"] = [y["year"] for y in years]
+    years.sort(key=lambda x:int(x))
+    templateVars["years"] = years
     templateVars["checked"] = types.split(":")
     return render_template("references.html", **templateVars)
 
@@ -240,21 +238,24 @@ def get_biblio_types(types):
 @login_required
 def request_api():
     """Request given years and types"""
+    query1 = []
+
     year = request.args.get("year")
     if len(year) > 0 and year[-1] == ':':
         year = year[:-1]
+        query1.extend([BiblioEntry.year.like(yy) for yy in year.split(":")])
+
     types = request.args.get("type")
-    field_year = "".join("year=={} OR ".format(yy) for yy in year.split(":"))
-    field_type = "".join("ENTRYTYPE=='{}' OR ".format(tt) for tt in types.split(":"))
+    query2 = [BiblioEntry.ENTRYTYPE.like(tt) for tt in types.split(":")]
 
-    query = "SELECT * FROM Biblio WHERE ({}) AND ({})".format(field_type[:-3], field_year[:-3])
-    bibdat = requests_db(query)
-
-    years = requests_db("SELECT DISTINCT year FROM Biblio ORDER BY year DESC")
+    rows = db.session.query(BiblioEntry).filter(and_(or_(*query1), or_(*query2)))
+    bibdat = convert_rows_to_dict(rows)
+    years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
     templateVars = format_bibdatabase(bibdat, type_filter=types)
-    templateVars["checked"] = [int(y) for y in year.split(":")]
+    years.sort(key=lambda x:int(x))
+    templateVars["years"] = years
+    templateVars["checked"] = [str(y) for y in year.split(":")]
     templateVars["checked"].extend(types.split(":"))
-    templateVars["years"] = [y["year"] for y in years]
     return render_template("references.html", **templateVars)
 
 
@@ -262,11 +263,11 @@ def request_api():
 @login_required
 def get_biblio_author(auth):
     """Return bibliography corresponding to given author."""
-    bibdat = requests_db("SELECT * FROM Biblio WHERE authors LIKE '%{}%'".format(auth))
-    years = requests_db("SELECT DISTINCT year FROM Biblio ORDER BY year DESC")
-
-    templateVars = format_bibdatabase(bibdat, type_author=auth)
-    templateVars["years"] = [y["year"] for y in years]
+    auth = "%" + auth + "%"
+    bibdat = convert_rows_to_dict(db.session.query(BiblioEntry).filter(BiblioEntry.authors.like(auth)).all())
+    years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
+    templateVars = format_bibdatabase(bibdat)
+    templateVars["years"] = years
     return render_template("references.html", **templateVars)
 
 
@@ -290,7 +291,7 @@ def render_hal_biblio(keywords):
 
 
 def format_bibdatabase(bib_database, year_filter=None,
-        type_filter=None, type_author=None):
+                       type_filter=None, type_author=None):
     """Format bibtex database and apply specified filters.
 
     Parameters:
@@ -369,20 +370,8 @@ def format_bibdatabase(bib_database, year_filter=None,
     return templateVars
 
 
-def requests_db(req):
-    """Send a request to the DB and return a list of dict."""
-    con = sqlite3.connect(DB_NAME)
-    with con:
-        con.row_factory = sqlite3.Row
-        cur = con.cursor()
-        cur.execute(req)
-
-        rows = cur.fetchall()
-        bibdat = []
-        for row in rows:
-            f = dict(zip(row.keys(), row))
-            bibdat.append(f)
-    return bibdat
+def convert_rows_to_dict(rows):
+    return [row.__dict__ for row in rows]
 
 
 @lm.user_loader
