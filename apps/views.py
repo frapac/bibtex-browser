@@ -334,10 +334,12 @@ def format_bibdatabase(bib_database, year_filter=None,
                 templateVars["authors"].append(name)
 
         # process keywords:
-        try:
-            bib["keywords"] = bib.get("keyword", None).split(";")
-        except Exception as e:
-            pass
+        if bib.get("keyword"):
+            bib["keywords"] = bib.get("keyword", "").split(";")
+        elif bib.get("keywords"):
+            keywords = bib.get("keywords")
+            keywords = keywords.replace(",", ";")
+            bib["keywords"] = keywords.split(";")
 
     refsbyyear = []
     for year in base.keys():
