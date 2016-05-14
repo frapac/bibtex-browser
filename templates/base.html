@@ -110,10 +110,10 @@
 
     }
     else if(cy != "" && ct == ""){
-      window.location.href = "/biblio/".concat(cy);
+      window.location.href = "/biblio/query?".concat(cy);
     }
     else if(cy =="" && ct != ""){
-      window.location.href = "/biblio/".concat(ct);
+      window.location.href = "/biblio/query?".concat(ct);
     }
     else{
       ss = cy.concat("&", ct);

@@ -207,55 +207,35 @@ def get_all_biblio():
     return render_template("references.html", **templateVars)
 
 
-@app.route('/biblio/year=<string:year>:', methods=['GET'])
-@login_required
-def get_biblio_year(year):
-    """Return bibliography corresponding to given year."""
-    rows = db.session.query(BiblioEntry).filter(or_(*[BiblioEntry.year.like(yy) for yy in year.split(":")]))
-    bibdat = convert_rows_to_dict(rows)
-    years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
-    templateVars = format_bibdatabase(bibdat)
-    templateVars["checked"] = [str(y) for y in year.split(":")]
-    templateVars["years"] = years
-    return render_template("references.html", **templateVars)
-
-
-@app.route('/biblio/type=<string:types>:', methods=['GET'])
-@login_required
-def get_biblio_types(types):
-    """Return bibliography corresponding to given type."""
-    rows = db.session.query(BiblioEntry).filter(or_(*[BiblioEntry.ENTRYTYPE.like(yy) for yy in types.split(":")]))
-    bibdat = convert_rows_to_dict(rows)
-    years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
-    templateVars = format_bibdatabase(bibdat, type_filter=types)
-    years.sort(key=lambda x:int(x))
-    templateVars["years"] = years
-    templateVars["checked"] = types.split(":")
-    return render_template("references.html", **templateVars)
-
-
 @app.route('/biblio/query', methods=['GET'])
 @login_required
 def request_api():
     """Request given years and types"""
-    query1 = []
-
+    # Process arguments of query:
     year = request.args.get("year")
-    if len(year) > 0 and year[-1] == ':':
-        year = year[:-1]
-        query1.extend([BiblioEntry.year.like(yy) for yy in year.split(":")])
+    if year:
+        query1 = [BiblioEntry.year.like(yy) for yy in year.split(":")]
 
     types = request.args.get("type")
-    query2 = [BiblioEntry.ENTRYTYPE.like(tt) for tt in types.split(":")]
+    if types:
+        query2 = [BiblioEntry.ENTRYTYPE.like(tt) for tt in types.split(":")]
 
-    rows = db.session.query(BiblioEntry).filter(and_(or_(*query1), or_(*query2)))
+    if year and types:
+        fil = and_(or_(*query1), or_(*query2))
+    elif year:
+        fil = or_(*query1)
+    elif types:
+        fil = or_(*query2)
+    rows = db.session.query(BiblioEntry).filter(fil)
     bibdat = convert_rows_to_dict(rows)
     years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
     templateVars = format_bibdatabase(bibdat, type_filter=types)
     years.sort(key=lambda x:int(x))
     templateVars["years"] = years
-    templateVars["checked"] = [str(y) for y in year.split(":")]
-    templateVars["checked"].extend(types.split(":"))
+    if year:
+        templateVars["checked"] = [str(y) for y in year.split(":")]
+    if types:
+        templateVars["checked"].extend(types.split(":"))
     return render_template("references.html", **templateVars)
 
 

@@ -16,7 +16,7 @@
           {% for y in years%}
           <li class="li-filter">
             <input type="checkbox" name="years" value="{{y}}" class="checkyear" {%if y in checked%} checked {% endif %}>
-            <a href="/biblio/year={{y}}:">{{y}}</a>
+            <a href="/biblio/query?year={{y}}:">{{y}}</a>
           </li>
           {%endfor%}
         </ul>
@@ -26,7 +26,7 @@
           {% for t in types%}
           <li class="li-filter">
             <input type="checkbox" name="types" class="checktype" value="{{t}}" {%if t in checked%} checked {% endif %}>
-            <a href="/biblio/type={{t}}">{{t}}</a>
+            <a href="/biblio/query?type={{t}}:">{{t}}</a>
           </li>
           {%endfor%}
         </ul>
