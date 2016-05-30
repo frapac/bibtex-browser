@@ -12,10 +12,19 @@
     <div class="header">
       <a href="/index" class="header"> <b> Bibliography </b> </a>
       <div class="settings">
-        <a href="/logout"> <img src="static/img/log.svg" width=25px></a>
+        <a href="/logout"> <img src="/static/img/log.svg" width=25px></a>
       </div>
     </div>
 
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class=flashes>
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
     <div class="main">
 
       {% block content %}

@@ -1,10 +1,12 @@
 
+import os
 import requests
 import time
 import datetime
 from sqlalchemy import or_, and_
-from flask import jsonify, render_template, redirect,flash, request
+from flask import jsonify, render_template, redirect,flash, request, url_for
 from flask_login import login_required, logout_user, login_user, current_user
+from werkzeug.utils import secure_filename
 
 import bibtexparser
 from bibtexparser.bparser import BibTexParser
@@ -15,7 +17,7 @@ from collections import defaultdict
 from apps.models import *
 from apps import app, db, lm
 
-from config import DB_NAME, HAL_QUERY_API
+from config import DB_NAME, HAL_QUERY_API, ALLOWED_EXTENSIONS
 
 
 @app.errorhandler(404)
@@ -35,6 +37,7 @@ def login():
             db.session.add(user)
             db.session.commit()
             login_user(user, remember=True)
+            flash("success")
             return redirect(request.args.get('next') or "/index")
         return redirect('/login')
     return render_template('about.html', form=form, title="Log in")
@@ -51,8 +54,23 @@ def logout():
     return redirect('/')
 
 
-@app.route("/index")
+@app.route("/index", methods=["GET", "POST"])
 def get_index():
+    # If a PDF is being poster, process:
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(request.url)
+
+    # then, display page:
     form = SearchForm()
 
     activity = db.session.query(Event).all()
@@ -353,6 +371,13 @@ def format_bibdatabase(bib_database, year_filter=None,
 
 def convert_rows_to_dict(rows):
     return [row.__dict__ for row in rows]
+
+
+# upload file:
+# (code taken from official flask documentation)
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 @lm.user_loader

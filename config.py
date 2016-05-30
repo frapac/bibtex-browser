@@ -10,7 +10,7 @@ DB_NAME = "app.db"
 SQLALCHEMY_DATABASE_URI = 'sqlite:///'+ os.path.join(basedir, DB_NAME)
 
 # upload settings:
-UPLOAD_FOLDER = '/static/pdf'
+UPLOAD_FOLDER = 'static/pdf'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf'])
 
 PORT = 5000
