@@ -4,7 +4,7 @@ import time
 import datetime
 from sqlalchemy import or_, and_
 from flask import jsonify, render_template, redirect,flash, request
-from flask.ext.login import login_required, logout_user, login_user, current_user
+from flask_login import login_required, logout_user, login_user, current_user
 
 import bibtexparser
 from bibtexparser.bparser import BibTexParser
@@ -35,7 +35,6 @@ def login():
             db.session.add(user)
             db.session.commit()
             login_user(user, remember=True)
-            print(request.args.get("next"))
             return redirect(request.args.get('next') or "/index")
         return redirect('/login')
     return render_template('about.html', form=form, title="Log in")
@@ -64,7 +63,7 @@ def get_index():
         events.append({"author": p.author, "article": p.article, "date": date, "type":p.event})
 
     num_entries = db.session.query(BiblioEntry).count()
-    return render_template("index.html", title="Index", form=form, user=current_user.name, events=events, num_entries=num_entries)
+    return render_template("index.html", title="Index", form=form, user=current_user.name, events=events[::-1], num_entries=num_entries)
 
 
 @app.route('/biblio/search', methods=['GET', 'POST'])

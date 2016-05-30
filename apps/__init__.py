@@ -1,7 +1,7 @@
 
 from flask import Flask
-from flask.ext.login import LoginManager
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
 
 # Instantiate Flask application:
 app = Flask(__name__, template_folder="../templates",

@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from flask.ext.wtf import Form
+from flask_wtf import Form
 from wtforms import StringField, BooleanField, IntegerField, TextAreaField
 from wtforms.validators import DataRequired
 
 from apps import db
 
 
+###############################################################################
 # Define forms to interact with application:
+###############################################################################
 class SearchForm(Form):
     name = StringField('request', validators=[DataRequired()])
 
