@@ -13,7 +13,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from apps.models import BiblioEntry, User
+from apps.models.models import BiblioEntry, User
+from apps.bibtex import add_bibtex_string
 
 from apps import db
 
@@ -33,37 +34,15 @@ def load_bibtex_db(bibfile):
         bibtex_str = bibtex_file.read()
 
     print("Parse BIBTEX file ...")
-    # parse input biblio as unicode:
-    parser = BibTexParser()
-    parser.customization = convert_to_unicode
-    bib_database = bibtexparser.loads(bibtex_str, parser=parser)
+    add_bibtex_string(bibtex_str)
+    print("Done")
 
-    print("Write database ...")
-    for bib in bib_database.entries:
-        try:
-            bib_entry = BiblioEntry(ID=bib.get("ID", ""),
-                    ENTRYTYPE=bib.get("ENTRYTYPE", ""),
-                    authors=bib.get("author", ""),
-                    title=bib.get("title", ""),
-                    year=bib.get("year", ""),
-                    month=bib.get("month", ""),
-                    publisher=bib.get("publisher", ""),
-                    journal=bib.get("journal", ""),
-                    school=bib.get("school", ""),
-                    pdf=bib.get("pdf", ""),
-                    url=bib.get("url", ""),
-                    keywords=bib.get("keywords", ""))
-        except:
-            print("Entry already in database: ", bib.get("ENTRYTYPE"))
-        db.session.add(bib_entry)
-    db.session.commit()
 
+def load_admin():
     # Add admin user
     user = User(name="admin", passwd="oss117")
     db.session.add(user)
     db.session.commit()
-    print("Done")
-
 
 def load_xml_db(xmlfile):
     """
