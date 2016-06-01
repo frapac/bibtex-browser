@@ -14,7 +14,8 @@ from bibtexparser.customization import convert_to_unicode
 from bibtexparser.bibdatabase import BibDatabase
 from collections import defaultdict
 
-from apps.models import *
+from apps.models.models import *
+from apps.bibtex import add_bibtex_string
 from apps import app, db, lm
 
 from config import DB_NAME, HAL_QUERY_API, ALLOWED_EXTENSIONS
@@ -56,7 +57,7 @@ def logout():
 
 @app.route("/index", methods=["GET", "POST"])
 def get_index():
-    # If a PDF is being poster, process:
+    # If a bibtex is being posted, process:
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part')
@@ -65,9 +66,10 @@ def get_index():
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        if file and file.filename[-4:] == ".bib":
+            bibtexstr = file.read().decode("utf8")
+            add_bibtex_string(bibtexstr)
+            flash("{} has been added to database.".format(file.filename))
             return redirect(request.url)
 
     # then, display page:
