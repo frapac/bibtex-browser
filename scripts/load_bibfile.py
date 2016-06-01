@@ -4,6 +4,7 @@
 """Parse a bibtex file to init the database."""
 
 import sys
+import os
 import bibtexparser
 import xmltodict
 from bibtexparser.bparser import BibTexParser
@@ -13,6 +14,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from apps.models.models import BiblioEntry, User
 from apps.bibtex import add_bibtex_string
 
@@ -37,12 +39,6 @@ def load_bibtex_db(bibfile):
     add_bibtex_string(bibtex_str)
     print("Done")
 
-
-def load_admin():
-    # Add admin user
-    user = User(name="admin", passwd="oss117")
-    db.session.add(user)
-    db.session.commit()
 
 def load_xml_db(xmlfile):
     """

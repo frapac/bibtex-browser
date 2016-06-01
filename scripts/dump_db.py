@@ -4,6 +4,7 @@
 """Dump SQL database into bibtex file."""
 
 import sys
+import os
 import bibtexparser
 from bibtexparser.bparser import BibTexParser
 from bibtexparser.bwriter import BibTexWriter
@@ -14,7 +15,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from create_db import BiblioEntry
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from apps.models.models import BiblioEntry
 
 
 def main():
@@ -37,14 +39,12 @@ def main():
     for e in dbentries:
         db.entries.append(
             {'journal': e.journal,
-             'month': e.month,
              'title': e.title,
              'year': str(e.year),
              'publisher': e.publisher,
              'school': e.school,
              'ID': e.ID,
              'url': e.url,
-             'pdf': e.pdf,
              'author': e.authors,
              'keyword': e.keywords,
              'ENTRYTYPE': e.ENTRYTYPE}
