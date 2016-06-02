@@ -151,3 +151,17 @@ input.login{
   font-style: normal;
 }
 
+div.flashes{
+  display: block;
+  margin: 0px auto;
+  position: relative;
+  color:#111111; font-weight: bold;
+  border-radius: 1px;
+  border: 0px solid #bbb;
+  background-color: #e5efda;
+  width: 150px;
+}
+
+ul.flashes{
+  list-style-type: none;
+}

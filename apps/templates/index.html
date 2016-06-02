@@ -20,7 +20,6 @@
 
       <div class="news-feed">
         Previous activity:
-        <p>
           <ul class="list-group">
             {% for event in events %}
             <li class="list-group-item">
@@ -36,7 +35,6 @@
             </li>
             {% endfor %}
           </ul>
-        </p>
       </div>
       <hr>
 
@@ -44,21 +42,19 @@
         <h6> Upload your bibtex or XML file: </h6>
         <form action="/index" method=post enctype=multipart/form-data>
           <p><input type=file name=file>
-             <input type=submit value=Upload>
+             <input type=submit value=Upload></p>
         </form>
       </div>
     </div>
-
   <div class="three columns">
     <div class="status-content">
       <p>
         Hello <b> {{user}} </b>
       </p>
-      <p>  Some statistics:
+       Some statistics:
         <ul>
           <li> Number of articles: {{num_entries}} </li>
         </ul>
-      </p>
     </div>
   </div>
 </div>

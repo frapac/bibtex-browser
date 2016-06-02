@@ -38,7 +38,7 @@ def login():
             db.session.add(user)
             db.session.commit()
             login_user(user, remember=True)
-            flash("success")
+            flash("Login success")
             return redirect(request.args.get('next') or "/index")
         return redirect('/login')
     return render_template('about.html', form=form, title="Log in")
@@ -72,6 +72,7 @@ def get_index():
             flash("{} has been added to database.".format(file.filename))
             return redirect(request.url)
 
+    flash("ok")
     # then, display page:
     form = SearchForm()
 
