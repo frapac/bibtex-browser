@@ -6,8 +6,9 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from apps import db
-from apps.models import *
+from apps.models.models import *
 from load_bibfile import load_file_in_db
+
 
 
 def load_admin():

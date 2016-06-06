@@ -16,7 +16,7 @@ from sqlalchemy.orm import sessionmaker
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from apps.models.models import BiblioEntry, User
-from apps.bibtex import add_bibtex_string
+from apps.bibtex import add_bibtex_string, add_xml_string
 
 from apps import db
 
@@ -54,47 +54,8 @@ def load_xml_db(xmlfile):
     with open(xmlfile) as xml_file:
         xml_str = xml_file.read()
 
-    print("Parse XML file ...")
-    # parse input biblio as unicode:
-    parsed_xml = xmltodict.parse(xml_str)
-
-    correspondance = dict(
-            JournalArticle="article",
-            Book="book",
-            ConferenceProceedings="inproceedings",
-            Report="techreport")
-
-    print("Write database ...")
-    for i, bib in enumerate(parsed_xml["b:Sources"]["b:Source"]):
-        try:
-            dic_author = bib["b:Author"]["b:Author"]["b:NameList"]["b:Person"]
-            if isinstance(dic_author, list):
-                author = ""
-                for auth in dic_author:
-                    author += auth["b:Last"]+", " + auth["b:First"] + " and "
-                # Remove last "and":
-                author = author[:-4]
-            else:
-                author = dic_author["b:Last"] + ", " + dic_author["b:First"]
-        except KeyError:
-            author = bib["b:Author"]["b:Author"].get("b:Corporate", "")
-
-        sourcetype = bib.get("b:SourceType", "")
-        try:
-            entrytype = correspondance[sourcetype]
-        except KeyError:
-            entrytype = "misc"
-
-        bib_entry = BiblioEntry(ID=bib.get("b:Tag", ""),
-                                ENTRYTYPE=entrytype,
-                                authors=author,
-                                title=bib.get("b:Title", ""),
-                                year=bib.get("b:Year", "1970"),
-                                month=bib.get("b:Month", ""),
-                                publisher=bib.get("b:Publisher", ""),
-                                journal=bib.get("b:JournalName", ""))
-        db.session.add(bib_entry)
-    db.session.commit()
+    print("Write database...")
+    add_xml_string(xml_str)
     print("Done")
 
 

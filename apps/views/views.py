@@ -15,7 +15,7 @@ from bibtexparser.bibdatabase import BibDatabase
 from collections import defaultdict
 
 from apps.models.models import *
-from apps.bibtex import add_bibtex_string
+from apps.bibtex import add_bibtex_string, add_xml_string
 from apps import app, db, lm
 
 from config import DB_NAME, HAL_QUERY_API, ALLOWED_EXTENSIONS
@@ -66,13 +66,15 @@ def get_index():
         if file.filename == '':
             flash('No selected file')
             return redirect(request.url)
-        if file and file.filename[-4:] == ".bib":
+        if file:
             bibtexstr = file.read().decode("utf8")
-            add_bibtex_string(bibtexstr)
+            if file.filename[-4:] == ".bib":
+                add_bibtex_string(bibtexstr)
+            elif file.filename[-4:] == ".xml":
+                add_xml_string(bibtexstr)
             flash("{} has been added to database.".format(file.filename))
             return redirect(request.url)
 
-    flash("ok")
     # then, display page:
     form = SearchForm()
 

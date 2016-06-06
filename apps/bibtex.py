@@ -4,6 +4,7 @@
 """Parse a bibtex string and load it into database"""
 
 import sys
+import xmltodict
 import bibtexparser
 from bibtexparser.bparser import BibTexParser
 from bibtexparser.customization import convert_to_unicode
@@ -42,4 +43,48 @@ def add_bibtex_string(bibtex_str):
             db.session.commit()
         except:
             print("Entry already in database: ", bib.get("title"))
+
+
+def add_xml_string(xml_str):
+    parsed_xml = xmltodict.parse(xml_str)
+
+    correspondance = dict(
+            JournalArticle="article",
+            Book="book",
+            ConferenceProceedings="inproceedings",
+            Report="techreport")
+
+    for i, bib in enumerate(parsed_xml["b:Sources"]["b:Source"]):
+        try:
+            dic_author = bib["b:Author"]["b:Author"]["b:NameList"]["b:Person"]
+            if isinstance(dic_author, list):
+                author = ""
+                for auth in dic_author:
+                    author += auth["b:Last"]+", " + auth["b:First"] + " and "
+                # Remove last "and":
+                author = author[:-4]
+            else:
+                author = dic_author["b:Last"] + ", " + dic_author["b:First"]
+        except KeyError:
+            author = bib["b:Author"]["b:Author"].get("b:Corporate", "")
+
+        sourcetype = bib.get("b:SourceType", "")
+        try:
+            entrytype = correspondance[sourcetype]
+        except KeyError:
+            entrytype = "misc"
+
+        bib_entry = BiblioEntry(ID=bib.get("b:Tag", ""),
+                                ENTRYTYPE=entrytype,
+                                authors=author,
+                                title=bib.get("b:Title", ""),
+                                year=bib.get("b:Year", "1970"),
+                                month=bib.get("b:Month", ""),
+                                publisher=bib.get("b:Publisher", ""),
+                                journal=bib.get("b:JournalName", ""))
+        db.session.add(bib_entry)
+        try:
+            db.session.commit()
+        except:
+            print("Entry already in database.")
 
