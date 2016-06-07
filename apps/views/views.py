@@ -103,6 +103,8 @@ def search_biblio():
                                                     BiblioEntry.title.like(s))))
         # Format bibdat and sort by years:
         templateVars = format_bibdatabase(bibdat)
+        if len(bibdat) == 0:
+            flash("No entry found")
         return render_template("references.html", **templateVars)
     return redirect("/biblio")
 
