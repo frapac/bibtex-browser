@@ -11,6 +11,11 @@
         <form method="post" action="/biblio/search">
           {{ form.csrf_token }}
           <input type="text" name="name" size="60" tabindex="1">
+          <select name="source" id="bibtype">
+            <option value="local">Local</option>
+            <option value="arxiv">Arxiv</option>
+            <option value="hal">HAL</option>
+          </select>
           <input type="submit" value="Search" tabindex="2">
         </form>
       </div>

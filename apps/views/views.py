@@ -76,7 +76,7 @@ def get_index():
             return redirect(request.url)
 
     # then, display page:
-    form = SearchForm()
+    form = ExtendedSearchForm()
 
     activity = db.session.query(Event).all()
     events = []
@@ -89,23 +89,42 @@ def get_index():
     return render_template("index.html", title="Index", form=form, user=current_user.name, events=events[::-1], num_entries=num_entries)
 
 
+@app.route('/request', methods=["POST"])
+def follow_request():
+    form = ExtendedSearchForm()
+    if form.validate_on_submit():
+        print(form.source.data)
+        if form.source.data == "local":
+            redirect("/biblio/search", code=307)
+        elif form.source.data == "hal":
+            redirect("/hal/"+form.name.data)
+        else:
+            flash("Not implemented yet")
+    return redirect("/index")
+
+
 @app.route('/biblio/search', methods=['GET', 'POST'])
 @login_required
 def search_biblio():
     """Search entries in biblio."""
     # Get the form corresponding to the query:
-    form = SearchForm()
+    form = ExtendedSearchForm()
     if form.validate_on_submit():
-        s = "%" + form.name.data + "%"
-        # Send request to database:
-        bibdat = convert_rows_to_dict(db.session.query(BiblioEntry)\
-                                        .filter(or_(BiblioEntry.authors.like(s),
-                                                    BiblioEntry.title.like(s))))
-        # Format bibdat and sort by years:
-        templateVars = format_bibdatabase(bibdat)
-        if len(bibdat) == 0:
-            flash("No entry found")
-        return render_template("references.html", **templateVars)
+        if form.source.data == "local":
+            s = "%" + form.name.data + "%"
+            # Send request to database:
+            bibdat = convert_rows_to_dict(db.session.query(BiblioEntry)\
+                                            .filter(or_(BiblioEntry.authors.like(s),
+                                                        BiblioEntry.title.like(s))))
+            # Format bibdat and sort by years:
+            templateVars = format_bibdatabase(bibdat)
+            if len(bibdat) == 0:
+                flash("No entry found")
+            return render_template("references.html", **templateVars)
+        elif form.source.data == "hal":
+            redirect("/hal/"+form.name.data)
+        else:
+            flash("Not implemented yet")
     return redirect("/biblio")
 
 
@@ -196,7 +215,10 @@ def get_bibtex(idx):
 def display_article(idx):
     """Return bibtex entry with id *idx*."""
     bibdat =  BiblioEntry.query.filter_by(ID=idx).first()
-    keyword = (bibdat.keywords).split(",")
+    try:
+        keyword = (bibdat.keywords).split(",")
+    except:
+        keyword = ""
 
     posts = Post.query.filter_by(article=idx).all()
     dposts = []
@@ -313,7 +335,7 @@ def format_bibdatabase(bib_database, year_filter=None,
         If specified, filter entries by author
 
     """
-    form = SearchForm()
+    form = ExtendedSearchForm()
     bibform = BiblioForm()
     templateVars = {
         "license_info": "Distributed under GNU license.",

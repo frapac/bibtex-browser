@@ -13,6 +13,9 @@ from apps import db
 class SearchForm(Form):
     name = StringField('request', validators=[DataRequired()])
 
+class ExtendedSearchForm(Form):
+    name = StringField('request', validators=[DataRequired()])
+    source = StringField('request', validators=[DataRequired()])
 
 class LoginForm(Form):
     name = StringField('request', validators=[DataRequired()])
