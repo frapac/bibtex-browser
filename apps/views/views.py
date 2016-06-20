@@ -249,7 +249,8 @@ def get_all_biblio():
     bibdat = convert_rows_to_dict(db.session.query(BiblioEntry).all())
     years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
     templateVars = format_bibdatabase(bibdat)
-    templateVars["years"] = years
+    years.sort()
+    templateVars["years"] = years[::-1]
     return render_template("references.html", **templateVars)
 
 
@@ -293,7 +294,8 @@ def get_biblio_author(auth):
     bibdat = convert_rows_to_dict(db.session.query(BiblioEntry).filter(BiblioEntry.authors.like(auth)).all())
     years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
     templateVars = format_bibdatabase(bibdat)
-    templateVars["years"] = years
+    years.sort()
+    templateVars["years"] = years[::-1]
     return render_template("references.html", **templateVars)
 
 
