@@ -18,7 +18,8 @@ from apps.models.models import *
 from apps.bibtex import add_bibtex_string, add_xml_string
 from apps import app, db, lm
 
-from config import DB_NAME, HAL_QUERY_API, ALLOWED_EXTENSIONS
+from config import DB_NAME, HAL_QUERY_API, ALLOWED_EXTENSIONS, \
+                    ITEMS_PER_PAGE
 
 
 @app.errorhandler(404)
@@ -261,10 +262,12 @@ def display_article(idx):
 
 
 @app.route('/biblio', methods=['GET'])
+@app.route('/biblio/<int:page>', methods=['GET'])
 @login_required
-def get_all_biblio():
+def get_all_biblio(page=1):
     """Return all bibliography, without filters."""
-    bibdat = convert_rows_to_dict(db.session.query(BiblioEntry).all())
+    query = BiblioEntry.query.paginate(page, ITEMS_PER_PAGE, False).items
+    bibdat = convert_rows_to_dict(query)
     years = [str(value.year)
                 for value in db.session.query(BiblioEntry.year).distinct()]
     templateVars = format_bibdatabase(bibdat)

@@ -17,6 +17,8 @@ PORT = 5000
 DEBUG = True
 TESTING = False
 
+ITEMS_PER_PAGE = 30
+
 HAL_QUERY_API = "https://api.archives-ouvertes.fr/search/?q={0}~3&wt=bibtex"
 ARXIV_API = 'http://export.arxiv.org/api/query?';
 
