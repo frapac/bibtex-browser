@@ -83,10 +83,20 @@ def get_index():
     # Store events in a dictionnary
     for p in activity:
         date = datetime.datetime.fromtimestamp(p.time).strftime("%d-%m-%Y %H:%M")
-        events.append({"author": p.author, "article": p.article, "date": date, "type":p.event})
+        events.append({
+                          "author": p.author,
+                          "article": p.article,
+                          "date": date,
+                          "type":p.event
+                      })
 
     num_entries = db.session.query(BiblioEntry).count()
-    return render_template("index.html", title="Index", form=form, user=current_user.name, events=events[::-1], num_entries=num_entries)
+    return render_template("index.html",
+                           title="Index",
+                           form=form,
+                           user=current_user.name,
+                           events=events[::-1],
+                           num_entries=num_entries)
 
 
 @app.route('/request', methods=["POST"])
@@ -114,8 +124,8 @@ def search_biblio():
             s = "%" + form.name.data + "%"
             # Send request to database:
             bibdat = convert_rows_to_dict(db.session.query(BiblioEntry)\
-                                            .filter(or_(BiblioEntry.authors.like(s),
-                                                        BiblioEntry.title.like(s))))
+                                        .filter(or_(BiblioEntry.authors.like(s),
+                                                    BiblioEntry.title.like(s))))
             # Format bibdat and sort by years:
             templateVars = format_bibdatabase(bibdat)
             if len(bibdat) == 0:
@@ -147,7 +157,8 @@ def add_entry():
 
         db.session.add(bib_entry)
         user = current_user.name
-        event = Event(author=user, article=form.ID.data, event="ADD", time=time.time())
+        event = Event(author=user, article=form.ID.data,
+                      event="ADD", time=time.time())
         db.session.add(event)
         db.session.commit()
         return redirect("/biblio")
@@ -174,7 +185,8 @@ def update_entry():
         db.session.add(article)
 
         user = current_user.name
-        event = Event(author=user, article=form.ID.data, event="UPDATE", time=time.time())
+        event = Event(author=user, article=form.ID.data,
+                      event="UPDATE", time=time.time())
         db.session.add(event)
 
         db.session.commit()
@@ -190,11 +202,13 @@ def post_comment():
     article = request.environ["HTTP_REFERER"].split(":")[-1]
     tim = time.time()
     user = current_user.name
-    post = Post(author=user, article=article, message=form.message.data, time=tim)
+    post = Post(author=user, article=article,
+                message=form.message.data, time=tim)
     db.session.add(post)
 
     user = current_user.name
-    event = Event(author=user, article=article, event="COMMENT", time=time.time())
+    event = Event(author=user, article=article,
+                  event="COMMENT", time=time.time())
     db.session.add(event)
     db.session.commit()
     return redirect("/biblio/article:" + article)
@@ -226,7 +240,11 @@ def display_article(idx):
     # Store posts in a dictionnary
     for p in posts:
         date = datetime.datetime.fromtimestamp(p.time).strftime("%d-%m-%Y %H:%M")
-        dposts.append({"author": p.author, "message": p.message, "date": date})
+        dposts.append({
+            "author": p.author,
+            "message": p.message,
+            "date": date
+                      })
 
     templateVars = {
             "license_info": "Distributed under MIT license.",
@@ -247,7 +265,8 @@ def display_article(idx):
 def get_all_biblio():
     """Return all bibliography, without filters."""
     bibdat = convert_rows_to_dict(db.session.query(BiblioEntry).all())
-    years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
+    years = [str(value.year)
+                for value in db.session.query(BiblioEntry.year).distinct()]
     templateVars = format_bibdatabase(bibdat)
     years.sort()
     templateVars["years"] = years[::-1]
@@ -275,7 +294,8 @@ def request_api():
         fil = or_(*query2)
     rows = db.session.query(BiblioEntry).filter(fil)
     bibdat = convert_rows_to_dict(rows)
-    years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
+    years = [str(value.year)
+                for value in db.session.query(BiblioEntry.year).distinct()]
     templateVars = format_bibdatabase(bibdat, type_filter=types)
     years.sort(key=lambda x:int(x))
     templateVars["years"] = years
@@ -291,8 +311,13 @@ def request_api():
 def get_biblio_author(auth):
     """Return bibliography corresponding to given author."""
     auth = "%" + auth + "%"
-    bibdat = convert_rows_to_dict(db.session.query(BiblioEntry).filter(BiblioEntry.authors.like(auth)).all())
-    years = [str(value.year) for value in db.session.query(BiblioEntry.year).distinct()]
+    bibdat = convert_rows_to_dict(
+                                    db.session.query(BiblioEntry).\
+                                        filter(BiblioEntry.authors.like(auth)).\
+                                        all()
+                                 )
+    years = [str(value.year)
+                for value in db.session.query(BiblioEntry.year).distinct()]
     templateVars = format_bibdatabase(bibdat)
     years.sort()
     templateVars["years"] = years[::-1]
@@ -303,10 +328,6 @@ def get_biblio_author(auth):
 @login_required
 def render_hal_biblio(keywords):
     """Send a query to HAL API and display returned bibtex entries."""
-    # http://export.arxiv.org/api/query?search_query=au:%22leclere%22&sortBy=lastUpdatedDate&sortOrder=descending
-    # https://api.archives-ouvertes.fr/search/?q=title_t:%22microgrid%22~3&wt=json
-    # https://api.archives-ouvertes.fr/search/?q=auth_t:%22olivier%20bonin%22~3&wt=bibtex
-
     biblio = requests.get(HAL_QUERY_API.format(keywords)).text
 
     parser = BibTexParser()
@@ -349,7 +370,8 @@ def format_bibdatabase(bib_database, year_filter=None,
         "references": [],
         "authors": [],
         "checked": [],
-        "types": ["book", "article", "phdthesis", "inproceedings", "misc", "techreport"]
+        "types": ["book", "article", "phdthesis",
+                  "inproceedings", "misc", "techreport"]
         }
 
     base = defaultdict(list)
