@@ -5,12 +5,21 @@
     <link rel="stylesheet" href="/static/css/skeleton.css" type="text/css">
     <link rel="stylesheet" href="/static/css/normalize.css" type="text/css">
     <link rel="stylesheet" href="/static/css/base.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/menu.css" type="text/css">
     <link rel="stylesheet" href="/static/css/modal.css" type="text/css">
   </head>
 
   <body>
     <div class="header">
-      <a href="/index" class="header"> <b> Bibliography </b> </a>
+      <div class="dropdown"><a href="/index" class="header dropdown-btn" ><b> .bib </b> </a>
+      <div class="dropdown-content">
+        <a href="#">My biblio</a>
+        <a href="#">Add new biblio</a>
+        <a href="#">Stats</a>
+      </div>
+      </div>
+
+      <!-- <a href="/index" class="header"style="margin-left: 5rem;"><img src="/static/img/menu.svg" width=29px></a> -->
       <div class="settings">
         <a href="/logout"> <img src="/static/img/log.svg" width=25px></a>
       </div>
