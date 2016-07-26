@@ -38,6 +38,7 @@ def add_bibtex_string(bibtex_str):
                     school=bib.get("school", ""),
                     pdf=bib.get("pdf", ""),
                     url=bib.get("url", ""),
+                    tag=bib.get("tag", "undefined"),
                     keywords=bib.get("keywords", ""))
             db.session.add(bib_entry)
             db.session.commit()
@@ -81,6 +82,7 @@ def add_xml_string(xml_str):
                                 year=bib.get("b:Year", "1970"),
                                 month=bib.get("b:Month", ""),
                                 publisher=bib.get("b:Publisher", ""),
+                                tag="undefined",
                                 journal=bib.get("b:JournalName", ""))
         db.session.add(bib_entry)
         try:

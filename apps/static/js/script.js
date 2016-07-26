@@ -41,6 +41,7 @@ document.onkeypress = function(evt) {
 
 var checkedyear = document.getElementsByClassName('checkyear');
 var checkedtype = document.getElementsByClassName('checktype');
+var checkedtags = document.getElementsByClassName('checktags');
 
 // Get value of all checkbox checked in a specified array
 function checkClickedTab(tab, field){
@@ -64,22 +65,15 @@ function checkClickedTab(tab, field){
 
 
 function checkClicked(){
+  link = "/biblio/query?"
   cy = checkClickedTab(checkedyear, "year=");
+  if(cy != ""){link = link.concat(cy, "&");}
   ct = checkClickedTab(checkedtype, "type=");
+  if(ct != ""){link = link.concat(ct, "&");}
+  ctags = checkClickedTab(checkedtags, "tags=");
+  if(ctags != ""){link = link.concat(ctags, "&");}
 
-  if(cy == "" && ct == ""){
-
-  }
-  else if(cy != "" && ct == ""){
-    window.location.href = "/biblio/query?".concat(cy);
-  }
-  else if(cy =="" && ct != ""){
-    window.location.href = "/biblio/query?".concat(ct);
-  }
-  else{
-    ss = cy.concat("&", ct);
-    window.location.href = "/biblio/query?".concat(ss);
-  }
+  window.location.href = link
 }
 
 var it;
@@ -88,4 +82,7 @@ for (it=0; it < checkedyear.length; it++){
 }
 for (it=0; it< checkedtype.length; it++){
   checkedtype[it].onclick = checkClicked;
+}
+for (it=0; it< checkedtype.length; it++){
+  checkedtags[it].onclick = checkClicked;
 }

@@ -22,6 +22,9 @@
   <p>
     <b> Type: </b> <b class="type">{{article.ENTRYTYPE}}</b>
   </p>
+  <p>
+    <b> Tag: </b> <b class="tag">{{article.tag}}</b>
+  </p>
 
   <hr/>
 
@@ -110,6 +113,11 @@
         <div class="row form">
           <div class="one column"><b>School</b></div>
           <div class="eleven columns">{{ bibform.school(size=20, value=article.school) }}</div>
+        </div>
+
+        <div class="row form">
+          <div class="one column"><b>Tag</b></div>
+          <div class="eleven columns">{{ bibform.tag(size=20, value=article.tag) }}</div>
         </div>
 
         <div class="row form">

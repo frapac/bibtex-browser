@@ -32,6 +32,16 @@
         </ul>
 
         <hr/ class="ref">
+        <ul  class="navlist nobullet"> Tags
+          {% for t in tags%}
+          <li class="li-filter">
+            <input type="checkbox" name="types" class="checktags" value="{{t}}" {%if t in checked%} checked {% endif %}>
+            <a href="/biblio/query?tags={{t}}:">{{t}}</a>
+          </li>
+          {%endfor%}
+        </ul>
+
+        <hr/ class="ref">
         <ul class="authorul">  Authors
         <br/>
         {% for a in authors%}

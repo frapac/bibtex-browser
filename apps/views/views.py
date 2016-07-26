@@ -171,7 +171,7 @@ def add_entry():
 def update_entry():
     """Add a new entry to the bibliography."""
     form = BiblioForm()
-    article_name = request.environ["HTTP_REFERER"].split(":")[-1]
+    article_name = request.environ["HTTP_REFERER"].split("=")[-1]
     if form.validate_on_submit():
         article = BiblioEntry.query.filter_by(ID=form.ID.data).first()
         article.ID = form.ID.data
@@ -183,6 +183,7 @@ def update_entry():
         article.school = form.school.data
         article.url = form.url.data
         article.keywords = form.keywords.data
+        article.tag = form.tag.data
         db.session.add(article)
 
         user = current_user.name
@@ -191,7 +192,7 @@ def update_entry():
         db.session.add(event)
 
         db.session.commit()
-        return redirect("/biblio/article:" + article_name)
+        return redirect("/biblio/article=" + article_name)
     return redirect("/biblio")
 
 
@@ -230,35 +231,38 @@ def get_bibtex(idx):
 def display_article(idx):
     """Return bibtex entry with id *idx*."""
     bibdat =  BiblioEntry.query.filter_by(ID=idx).first()
-    try:
-        keyword = (bibdat.keywords).split(",")
-    except:
-        keyword = ""
+    if bibdat:
+        try:
+            keyword = (bibdat.keywords).split(",")
+        except:
+            keyword = ""
 
-    posts = Post.query.filter_by(article=idx).all()
-    dposts = []
+        posts = Post.query.filter_by(article=idx).all()
+        dposts = []
 
-    # Store posts in a dictionnary
-    for p in posts:
-        date = datetime.datetime.fromtimestamp(p.time).strftime("%d-%m-%Y %H:%M")
-        dposts.append({
-            "author": p.author,
-            "message": p.message,
-            "date": date
-                      })
+        # Store posts in a dictionnary
+        for p in posts:
+            date = datetime.datetime.fromtimestamp(p.time).\
+                                                    strftime("%d-%m-%Y %H:%M")
+            dposts.append({
+                "author": p.author,
+                "message": p.message,
+                "date": date
+                        })
 
-    templateVars = {
-            "license_info": "Distributed under MIT license.",
-            "title": "Article",
-            "engine": "Powered by Flask",
-            "article": bibdat,
-            "keyword": keyword,
-            "bibform": BiblioForm(),
-            "commentform": PostForm(),
-            "posts": dposts
-            }
+        templateVars = {
+                "license_info": "Distributed under MIT license.",
+                "title": "Article",
+                "engine": "Powered by Flask",
+                "article": bibdat,
+                "keyword": keyword,
+                "bibform": BiblioForm(),
+                "commentform": PostForm(),
+                "posts": dposts
+                }
 
-    return render_template("article.html", **templateVars)
+        return render_template("article.html", **templateVars)
+    return render_template('404.html', title="Not found"), 404
 
 
 @app.route('/biblio', methods=['GET'])
@@ -270,9 +274,12 @@ def get_all_biblio(page=1):
     bibdat = convert_rows_to_dict(query)
     years = [str(value.year)
                 for value in db.session.query(BiblioEntry.year).distinct()]
+    tags = [str(value.tag)
+                for value in db.session.query(BiblioEntry.tag).distinct()]
     templateVars = format_bibdatabase(bibdat)
     years.sort()
     templateVars["years"] = years[::-1]
+    templateVars["tags"] = tags
     return render_template("references.html", **templateVars)
 
 
@@ -281,31 +288,37 @@ def get_all_biblio(page=1):
 def request_api():
     """Request given years and types"""
     # Process arguments of query:
+    query = []
     year = request.args.get("year")
     if year:
-        query1 = [BiblioEntry.year.like(yy) for yy in year.split(":")]
+        query.append([BiblioEntry.year.like(yy) for yy in year.split(":")])
 
     types = request.args.get("type")
     if types:
-        query2 = [BiblioEntry.ENTRYTYPE.like(tt) for tt in types.split(":")]
+        query.append([BiblioEntry.ENTRYTYPE.like(tt) for tt in types.split(":")])
 
-    if year and types:
-        fil = and_(or_(*query1), or_(*query2))
-    elif year:
-        fil = or_(*query1)
-    elif types:
-        fil = or_(*query2)
+    tags_str = request.args.get("tags")
+    if tags_str:
+        query.append([BiblioEntry.tag.like(tt) for tt in tags_str.split(":")])
+
+    fil = and_(*[or_(*q) for q in query])
+
     rows = db.session.query(BiblioEntry).filter(fil)
     bibdat = convert_rows_to_dict(rows)
     years = [str(value.year)
                 for value in db.session.query(BiblioEntry.year).distinct()]
+    tags = [str(value.tag)
+                for value in db.session.query(BiblioEntry.tag).distinct()]
     templateVars = format_bibdatabase(bibdat, type_filter=types)
     years.sort(key=lambda x:int(x))
     templateVars["years"] = years
+    templateVars["tags"] = tags
     if year:
         templateVars["checked"] = [str(y) for y in year.split(":")]
     if types:
         templateVars["checked"].extend(types.split(":"))
+    if tags_str:
+        templateVars["checked"].extend(tags_str.split(":"))
     return render_template("references.html", **templateVars)
 
 
@@ -321,9 +334,12 @@ def get_biblio_author(auth):
                                  )
     years = [str(value.year)
                 for value in db.session.query(BiblioEntry.year).distinct()]
+    tags = [str(value.tag)
+                for value in db.session.query(BiblioEntry.tag).distinct()]
     templateVars = format_bibdatabase(bibdat)
     years.sort()
     templateVars["years"] = years[::-1]
+    templateVars["tags"] = tags
     return render_template("references.html", **templateVars)
 
 

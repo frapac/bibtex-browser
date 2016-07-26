@@ -30,6 +30,7 @@ class BiblioForm(Form):
     journal = StringField('request')
     ID = StringField('request', validators=[DataRequired()])
     keywords = StringField('request')
+    tag = StringField('request')
     school = StringField('request')
     url = StringField('request')
 
@@ -90,4 +91,5 @@ class BiblioEntry(db.Model):
     pdf = db.Column(db.String)
     url = db.Column(db.String)
     keywords = db.Column(db.String)
+    tag = db.Column(db.String)
 
