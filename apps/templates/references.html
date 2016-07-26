@@ -73,10 +73,10 @@
             <li class="list-group-item">
               {{ r.authors }}. <b class="type"> {{r.ENTRYTYPE}} </b>
               <br/>
-              <em> <a href="/biblio/article:{{r.ID}}"> {{r.title}}. </a></em>
+              <em> <a href="/biblio/article={{r.ID}}"> {{r.title}}. </a></em>
               <br/>
               {{r.origin}}
-               <a href="/bibtex:{{r.ID}}" class="elink"> <b> [bib] </b> </a>
+               <a href="/bibtex={{r.ID}}" class="elink"> <b> [bib] </b> </a>
               {% if r.link %}
                 <a href="{{r.link}}" class="elink"> <b> [url] </b> </a>
               {% endif %}

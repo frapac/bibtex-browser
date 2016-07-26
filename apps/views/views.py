@@ -200,7 +200,7 @@ def update_entry():
 def post_comment():
     """Add post to article."""
     form = PostForm()
-    article = request.environ["HTTP_REFERER"].split(":")[-1]
+    article = request.environ["HTTP_REFERER"].split("=")[-1]
     tim = time.time()
     user = current_user.name
     post = Post(author=user, article=article,
@@ -212,10 +212,10 @@ def post_comment():
                   event="COMMENT", time=time.time())
     db.session.add(event)
     db.session.commit()
-    return redirect("/biblio/article:" + article)
+    return redirect("/biblio/article=" + article)
 
 
-@app.route('/bibtex:<string:idx>', methods=['GET'])
+@app.route('/bibtex=<string:idx>', methods=['GET'])
 @login_required
 def get_bibtex(idx):
     """Return bibtex entry with id *idx*."""
@@ -225,7 +225,7 @@ def get_bibtex(idx):
     return jsonify(result)
 
 
-@app.route('/biblio/article:<string:idx>', methods=['GET'])
+@app.route('/biblio/article=<string:idx>', methods=['GET'])
 @login_required
 def display_article(idx):
     """Return bibtex entry with id *idx*."""

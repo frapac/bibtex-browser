@@ -73,10 +73,10 @@
                 <div id="{{r.ID}}">
                   <div id="authors{{r.ID}}"> {{ r.authors }}.</div> <b class="type" id="type{{r.ID}}"> {{r.ENTRYTYPE}} </b> <a class="elink" onclick="addHALEntry('{{r.ID}}')"> + </a>
                   <br/>
-                  <em><a href="/biblio/article:{{r.ID}}" id="title{{r.ID}}" class="linkarticle"> {{r.title}}. </a></em>
+                  <em><a href="/biblio/article={{r.ID}}" id="title{{r.ID}}" class="linkarticle"> {{r.title}}. </a></em>
                   <br/>
                   <div id="source{{r.ID}}"> {{r.origin}} </div>
-                   <a href="/bibtex:{{r.ID}}" class="elink"> <b> [bib] </b> </a>
+                   <a href="/bibtex={{r.ID}}" class="elink"> <b> [bib] </b> </a>
                   {% if r.link %}
                   <a href="{{r.link}}" class="elink" id="url{{r.ID}}"> <b> [url] </b> </a>
                   {% endif %}

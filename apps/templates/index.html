@@ -29,13 +29,13 @@
             {% for event in events %}
             <li class="list-group-item">
               {% if event.type == "COMMENT"%}
-                <b> {{event.date}} </b>: {{event.author}} comments <a href="/biblio/article:{{event.article}}"> {{event.article}} </a>
+                <b> {{event.date}} </b>: {{event.author}} comments <a href="/biblio/article={{event.article}}"> {{event.article}} </a>
               {%endif%}
               {% if event.type == "ADD"%}
-                <b> {{event.date}} </b>: {{event.author}} posts <a href="/biblio/article:{{event.article}}"> {{event.article}} </a>
+                <b> {{event.date}} </b>: {{event.author}} posts <a href="/biblio/article={{event.article}}"> {{event.article}} </a>
               {%endif%}
               {% if event.type == "UPDATE"%}
-                <b> {{event.date}} </b>: {{event.author}} updates <a href="/biblio/article:{{event.article}}"> {{event.article}} </a>
+                <b> {{event.date}} </b>: {{event.author}} updates <a href="/biblio/article={{event.article}}"> {{event.article}} </a>
               {%endif%}
             </li>
             {% endfor %}
