@@ -10,42 +10,46 @@
 
         <a href="/biblio" class="buttonlink" tabindex="3">Clear</a>
 
+        <p class="left-paragraph"> <b> Number of entries found: {{nentries}} </b> </p>
+
         <hr/ class="ref">
+        <div class="left-header"> <b> YEARS </b> </div>
         <ul  class="navlist nobullet">
-          Years
           {% for y in years%}
           <li class="li-filter">
             <input type="checkbox" name="years" value="{{y}}" class="checkyear" {%if y in checked%} checked {% endif %}>
-            <a href="/biblio/query?year={{y}}:">{{y}}</a>
+            <a href="/biblio/query?year={{y}}:" class="reflink"><b>{{y}}</b></a>
           </li>
           {%endfor%}
         </ul>
 
         <hr/ class="ref">
-        <ul  class="navlist nobullet">  Types
+        <div class="left-header"> <b> TYPES </b> </div>
+        <ul  class="navlist nobullet">
           {% for t in types%}
           <li class="li-filter">
             <input type="checkbox" name="types" class="checktype" value="{{t}}" {%if t in checked%} checked {% endif %}>
-            <a href="/biblio/query?type={{t}}:">{{t}}</a>
+            <a href="/biblio/query?type={{t}}:" class="reflink"><b>{{t}}</b></a>
           </li>
           {%endfor%}
         </ul>
 
         <hr/ class="ref">
-        <ul  class="navlist nobullet"> Tags
+        <div class="left-header"> <b> TAGS </b> </div>
+        <ul  class="navlist nobullet">
           {% for t in tags%}
           <li class="li-filter">
             <input type="checkbox" name="types" class="checktags" value="{{t}}" {%if t in checked%} checked {% endif %}>
-            <a href="/biblio/query?tags={{t}}:">{{t}}</a>
+            <a href="/biblio/query?tags={{t}}:" class="reflink"><b>{{t}}</b></a>
           </li>
           {%endfor%}
         </ul>
 
         <hr/ class="ref">
-        <ul class="authorul">  Authors
-        <br/>
+        <div class="left-header"> <b> AUTHORS </b> </div>
+        <ul class="authorul">
         {% for a in authors%}
-        <a class="author" href="/biblio/author={{a}}"> {{a}} </a>
+        <a class="author reflink" href="/biblio/author={{a}}"><b>{{a}}</b></a>
         {%endfor%}
         </ul>
       </div>
@@ -70,7 +74,7 @@
           <input type="submit" value="Search" tabindex="2">
         </form>
       </div>
-      <button id="myBtn">+</button>
+      <!-- <button id="myBtn">+</button> -->
 
       <ul class="list-group">
 
