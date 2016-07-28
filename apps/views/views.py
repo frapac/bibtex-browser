@@ -83,7 +83,7 @@ def get_index():
     events = []
     # Store events in a dictionnary
     for p in activity:
-        date = datetime.datetime.fromtimestamp(p.time).strftime("%d-%m-%Y %H:%M")
+        date = datetime.datetime.fromtimestamp(p.time).strftime("%d/%m %H:%M")
         events.append({
                           "author": p.author,
                           "article": p.article,
@@ -280,6 +280,7 @@ def get_all_biblio(page=1):
     years.sort()
     templateVars["years"] = years[::-1]
     templateVars["tags"] = tags
+    templateVars["nentries"] = BiblioEntry.query.count()
     return render_template("references.html", **templateVars)
 
 
@@ -389,6 +390,7 @@ def format_bibdatabase(bib_database, year_filter=None,
         "references": [],
         "authors": [],
         "checked": [],
+        "nentries": 0,
         "types": ["book", "article", "phdthesis",
                   "inproceedings", "misc", "techreport"]
         }

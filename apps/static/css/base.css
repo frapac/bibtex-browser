@@ -17,6 +17,9 @@ a.header{
 
 div.settings{
   float:right;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
 }
 
 div.main{
