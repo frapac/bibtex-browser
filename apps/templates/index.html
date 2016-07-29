@@ -2,62 +2,47 @@
 {% set page = 'index' %}
 {% block content %}
 
-<div class="index-content">
-  <div class="ten columns">
-    <h1> The bibliography database </h1>
-    Search in bibliography:
+<div class="ten columns search-form">
+  Search:
+  <div class="search-field">
+    <form method="post" action="/biblio/search">
+      {{ form.csrf_token }}
+      <input type="text" name="name" size="60" tabindex="1">
+      <select name="source" id="bibtype">
+        <option value="local">Local</option>
+        <option value="arxiv">Arxiv</option>
+        <option value="hal">HAL</option>
+      </select>
+      <input type="submit" value="Search" tabindex="2">
+    </form>
+  </div>
+</div>
 
-    <div class="search-field">
-      <form method="post" action="/biblio/search">
-        {{ form.csrf_token }}
-        <input type="text" name="name" size="60" tabindex="1">
-        <select name="source" id="bibtype">
-          <option value="local">Local</option>
-          <option value="arxiv">Arxiv</option>
-          <option value="hal">HAL</option>
-        </select>
-        <input type="submit" value="Search" tabindex="2">
-      </form>
-    </div>
-
-    <hr/>
-
-    <div id="bibupload">
-      <h6> Upload your bibtex or XML file: </h6>
-      <form action="/index" method=post enctype=multipart/form-data>
-        <p><input type=file name=file>
-            <input type=submit value=Upload></p>
-      </form>
-    </div>
+<div class="two columns borderleft">
+  <div class="status-content">
+    <p>
+      Hello <b> {{user}} </b>
+    </p>
+      Some statistics:
+        <p> Number of articles: {{num_entries}} </p>
   </div>
 
-  <div class="two columns borderleft">
-    <div class="status-content">
-      <p>
-        Hello <b> {{user}} </b>
+  <div class="news-feed" style="margin-top: 2rem;">
+    Previous activity:
+      {% for event in events %}
+      <p class="list-group-item">
+      {% if event.type == "COMMENT"%}
+          <b> {{event.date}} </b>: {{event.author}} comments <a href="/biblio/article={{event.article}}"> {{event.article}} </a>
+      {%endif%}
+      {% if event.type == "ADD"%}
+          <b> {{event.date}} </b>: {{event.author}} posts <a href="/biblio/article={{event.article}}"> {{event.article}} </a>
+      {%endif%}
+      {% if event.type == "UPDATE"%}
+          <b> {{event.date}} </b>: {{event.author}} updates <a href="/biblio/article={{event.article}}"> {{event.article}} </a>
+      {%endif%}
       </p>
-       Some statistics:
-        <ul>
-          <li> Number of articles: {{num_entries}} </li>
-        </ul>
-    </div>
-
-    <div class="news-feed">
-      Previous activity:
-          {% for event in events %}
-          <p class="list-group-item">
-            {% if event.type == "COMMENT"%}
-              <b> {{event.date}} </b>: {{event.author}} comments <a href="/biblio/article={{event.article}}"> {{event.article}} </a>
-            {%endif%}
-            {% if event.type == "ADD"%}
-              <b> {{event.date}} </b>: {{event.author}} posts <a href="/biblio/article={{event.article}}"> {{event.article}} </a>
-            {%endif%}
-            {% if event.type == "UPDATE"%}
-              <b> {{event.date}} </b>: {{event.author}} updates <a href="/biblio/article={{event.article}}"> {{event.article}} </a>
-            {%endif%}
-          </p>
-          {% endfor %}
-    </div>
+      <hr/ style="margin: 0rem;">
+      {% endfor %}
   </div>
 </div>
 

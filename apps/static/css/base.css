@@ -197,3 +197,14 @@ ul.flashes{
 a.reflink{
   color: #373737;
 }
+
+div.search-form{
+    padding: 10rem;
+    vertical-align: middle;
+    align-items: center;
+    text-align: center;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+

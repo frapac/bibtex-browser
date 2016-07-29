@@ -139,6 +139,12 @@ def search_biblio():
     return redirect("/biblio")
 
 
+@app.route('/bibmanager', methods=['GET'])
+@login_required
+def bibmanager():
+    return render_template("bibmanager.html", title="References")
+
+
 @app.route('/biblio/addentry', methods=['GET', 'POST'])
 @login_required
 def add_entry():
