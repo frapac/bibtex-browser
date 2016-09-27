@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% set page = 'about' %}
+
+{% block content %}
+
+<div id="bibupload" class="search-form">
+  <h6> Upload your bibtex or XML file: </h6>
+  <form action="/index" method=post enctype=multipart/form-data>
+  <p><input type=file name=file>
+    <input type=submit value=Upload></p>
+  </form>
+</div>
+
+{% endblock %}
